@@ -1,32 +1,35 @@
 ---
-layout:     post
-title:      中文输入法
-subtitle:   中文输入法导致的高频问题
-date:       2023-02-23
-author:     MY
+layout: post
+title: 中文输入法
+subtitle: 中文输入法导致的高频问题
+date: 2023-02-23
+author: My
 header-img: img/post-bg-keybord.jpg
 catalog: true
 tags:
-    - 基础 
-    - javascript
+  - 基础
+  - javascript
 ---
 
 ## 前言
+
 我们经常会给 `input` 绑定事件监听内容的变化，然后做出一些处理。但是如果你注意了，你就会发现在中文下，你还没有确定内容，但是绑定的方法已经触发了。
 
 ## 正文
 
 你的绑定是这样的，
+
 ```js
    <input type="text" @input="onSearch" v-model="msg">
 ```
+
 结果就是在中文输入法下，你还没选择文字，`onSearch`就触发了。
 
 > event !!!
-> 
->compositionstart (合成开始)
 >
->compositionend （合成结束）
+> compositionstart (合成开始)
+>
+> compositionend （合成结束）
 
 我们要使用到两个事件 `compositionstart`、`compositionend`，并调整 `input`输入框的事件监听。
 
@@ -43,10 +46,10 @@ const bindFun = () => {
 onMounted(() => {
   bindFun();
 });
-
 ```
 
 现在实现一下 `bindFun`方法，
+
 ```js
 const bindFun = () => {
   const inp = document.querySelector("input");
