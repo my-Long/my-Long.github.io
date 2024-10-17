@@ -518,11 +518,18 @@ pre code {
   padding: 85px 0 55px;
   color: white;
 }
+
+.style-text .site-heading,
+.style-text  .post-heading,
+.style-text .page-heading{
+  color: #404040 !important;
+}
+
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 150px 0;
+    padding: 30px 0;
   }
 }
 .intro-header .site-heading {
