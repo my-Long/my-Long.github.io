@@ -2,7 +2,7 @@
 layout:     post
 title:      中文输入法
 subtitle:   中文输入法导致的高频问题
-date:       2024-03-03
+date:       2023-02-23
 author:     MY
 header-img: img/post-bg-keybord.jpg
 catalog: true
