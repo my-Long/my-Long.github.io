@@ -7,7 +7,8 @@ author:     MY
 header-img: img/post-bg-randompic.jpg
 catalog: true
 tags:
-    - 库 - 工具
+    - 库
+    - 工具
 ---
 
 我们在开发的时候有时候需要用到一些图片，但是又想避免重复，又想避免使用自己本地的图片，这时候我们可以使用一些在线的图片库，`Lorem Picsum`。 

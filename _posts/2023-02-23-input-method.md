@@ -7,7 +7,8 @@ author:     MY
 header-img: img/post-bg-keybord.jpg
 catalog: true
 tags:
-    - 基础 - javascript
+    - 基础 
+    - javascript
 ---
 
 ## 前言
