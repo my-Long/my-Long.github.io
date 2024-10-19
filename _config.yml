@@ -13,10 +13,11 @@ future: true
 
 # SNS settings
 RSS: false
-weibo_username: Mypro
-zhihu_username: Mypro
-github_username: Mypro
-twitter_username: Mypro
+# weibo_username: Mypro
+zhihu_username: ''
+juejin_username: 2404004623556451
+github_username: my-long
+# twitter_username: Mypro
 #facebook_username:  Mypro
 #linkedin_username:  firstname-lastname-idxxxx
 
@@ -69,8 +70,8 @@ netease_comment: false
 # ba_track_id: [your track id]
 
 # Google Analytics
-ga_track_id: "UA-49627206-1" # Format: UA-xxxxxx-xx
-ga_domain: huangxuan.me
+# ga_track_id: "UA-49627206-1" # Format: UA-xxxxxx-xx
+# ga_domain: huangxuan.me
 
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
