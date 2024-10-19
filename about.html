@@ -1,145 +1,48 @@
 ---
 layout: page
 title: "About"
-description: "「如何能快乐地生活和工作」"
-header-img: "img/post-bg-rwd.jpg"
+description: "「他单纯只想把日子过得不浪费」"
+header-img: "img/bg-me-2022.jpg"
+header-mask: 0.3
+multilingual: true
 ---
 
-<!-- Language Selector -->
-<!-- <select class="sel-lang" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
-    <option value="0" selected> 中文 Chinese </option>
-    <option value="1"> 英文 English </option>
-</select> -->
+{% include multilingual-sel.html %}
 
 <!-- Chinese Version -->
 <div class="zh post-container">
-  <!--copied from markdown -->
-  <blockquote>
-    <p>
-      不积跬步，无以至千里<br />
-      不积小流，无以成江海
-    </p>
-  </blockquote>
+    {% capture about_zh %}{% include about/zh.md %}{% endcapture %}
+    {{ about_zh | markdownify }}
+</div>
 
-  <p>Hey，我是 My(孟余)，一只想要「技术」又想要「理想」前端程序猿，</p>
-
-  <p>
-    工作、学习之余，一个人玩玩游戏、看看电视、写写博客也是很有趣的。如果有志同道合的伙伴，一起爬山、散步、桌球、篮球或者说一起喝点小酒，谈论「人生与理想」。
-  </p>
-
-  <p>
-    以前总是专注于「业务」，或者说已经荒废了自己，后面想了想，人还是得努力的，不然和「咸鱼」有什么区别。
-    以前就像着做一个自己的网站，也曾手动部署过，但奈何
-    「服务器」的原因，没成功。也许还是得出去走一走，不然作为程序猿，连使用
-    <a href="https://pages.github.com/">Github Pages</a> 部署个人网站都不知道。
-  </p>
-  <p>
-    以后就要慢慢地上心了，活动范围在 <a href="https://juejin.cn/user/2404004623556451">掘金</a> 和 <a href="https://www.douyin.com/user/self?from_tab_name=main">抖音</a> 中，没时间逛太多的地方。
-  </p>
-
-  <p></p>
-
-  <h5>Talks</h5>
-
-  <ul>
-    <li><a href="https://github.com">GitHub</a></li>
-    <li><a href="https://pages.github.com/">GitHub Pages</a></li>
-    <li><a href="http://jekyll.com.cn/">jekyll</a></li>
-    <li><a href="http://huangxuan.me/">Hux</a></li>
-    <li>
-      <a href="https://analytics.google.com/analytics">Google Analytics</a>
-    </li>
-  </ul>
+<!-- English Version -->
+<div class="en post-container">
+    {% capture about_en %}{% include about/en.md %}{% endcapture %}
+    {{ about_en | markdownify }}
 </div>
 
 
-<!-- Handle Language Change -->
-<script type="text/javascript">
-  // get nodes
-  var $zh = document.querySelector(".zh");
-  var $en = document.querySelector(".en");
-  var $select = document.querySelector("select");
-
-  // bind hashchange event
-  window.addEventListener("hashchange", _render);
-
-  // handle render
-  function _render() {
-    var _hash = window.location.hash;
-    // en
-    if (_hash == "#en") {
-      $select.selectedIndex = 1;
-      $en.style.display = "block";
-      $zh.style.display = "none";
-      // zh by default
-    } else {
-      // not trigger onChange, otherwise cause a loop call.
-      $select.selectedIndex = 0;
-      $zh.style.display = "block";
-      $en.style.display = "none";
-    }
-  }
-
-  // handle select change
-  function onLanChange(index) {
-    if (index == 0) {
-      window.location.hash = "#zh";
-    } else {
-      window.location.hash = "#en";
-    }
-  }
-
-  // init
-  _render();
-</script>
-
-<!-- Gitalk 评论 start  -->
-{% if site.gitalk.enable %}
-<!-- Gitalk link  -->
-<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-<script src="https://unpkg.com/gitalk@latest/dist/gitalk.min.js"></script>
-
-<div id="gitalk-container"></div>
-<script type="text/javascript">
-  var gitalk = new Gitalk({
-  clientID: '{{site.gitalk.clientID}}',
-  clientSecret: '{{site.gitalk.clientSecret}}',
-  repo: '{{site.gitalk.repo}}',
-  owner: '{{site.gitalk.owner}}',
-  admin: ['{{site.gitalk.admin}}'],
-  distractionFreeMode: {{site.gitalk.distractionFreeMode}},
-  id: 'about',
-  });
-  gitalk.render('gitalk-container');
-</script>
-{% endif %}
-<!-- Gitalk end -->
-
-<!-- disqus 评论框 start  -->
-{% if site.disqus.enable %}
-
+{% if site.disqus_username %}
+<!-- disqus 评论框 start -->
 <div class="comment">
-  <div id="disqus_thread" class="disqus-thread"></div>
+    <div id="disqus_thread" class="disqus-thread">
+
+    </div>
 </div>
 <!-- disqus 评论框 end -->
 
 <!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
 <script type="text/javascript">
-  /* * * CONFIGURATION VARIABLES * * */
-  var disqus_shortname = "{{site.disqus.username}}";
-  var disqus_identifier = "{{site.disqus.username}}/{{page.url}}";
-  var disqus_url = "{{site.url}}{{page.url}}";
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "{{site.disqus_username}}";
+    var disqus_identifier = "{{site.disqus_username}}/{{page.url}}";
+    var disqus_url = "{{site.url}}{{page.url}}";
 
-  (function () {
-    var dsq = document.createElement("script");
-    dsq.type = "text/javascript";
-    dsq.async = true;
-    dsq.src = "//" + disqus_shortname + ".disqus.com/embed.js";
-    (
-      document.getElementsByTagName("head")[0] ||
-      document.getElementsByTagName("body")[0]
-    ).appendChild(dsq);
-  })();
+    (function () {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
 </script>
 <!-- disqus 公共JS代码 end -->
 {% endif %}
