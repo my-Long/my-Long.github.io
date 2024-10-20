@@ -1,6 +1,6 @@
 ---
 layout: post
-title: prototype and prototype chain ?
+title: Prototype and prototype chain ?
 subtitle: 原型与原型链之间错杂的关系
 date: 2022-05-22
 author: My
