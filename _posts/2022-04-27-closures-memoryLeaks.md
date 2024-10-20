@@ -2,7 +2,7 @@
 layout: post
 title: 闭包与内存泄漏的纠葛
 subtitle: 闭包与内存泄漏有什么关系，如何理解垃圾回收
-date: 2023-04-01
+date: 2022-04-27
 author: My
 header-img: img/post-bg-art.jpg
 catalog: true
