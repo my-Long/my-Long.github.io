@@ -2,7 +2,7 @@
 layout: post
 title: 高阶函数（HOF）
 subtitle: What are higher-order functions and how to use them
-date: 2022-02-05
+date: 2022-05-05
 author: My
 header-style: text
 catalog: true
