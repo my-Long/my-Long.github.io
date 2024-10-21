@@ -1,9 +1,10 @@
 ---
-title: "Ant design - message"
+title: "「Ant design」 - message"
 subtitle: "Record the basic usage of the message component"
 layout: post
 author: "My"
 header-style: text
+hidden: true
 tags:
   - ant design
   - 笔记
