@@ -1,4 +1,5 @@
 ---
+
 title: "「Ant design」 - modal"
 subtitle: "Record the basic usage of the modal component"
 layout: post
@@ -6,8 +7,10 @@ author: "My"
 header-style: text
 hidden: true
 tags:
-  - ant design
-  - 笔记
+
+- ant design
+- 笔记
+
 ---
 
 ## Introduction
@@ -275,4 +278,4 @@ return (
 
 像这种 memo 、 useCallback 来阻止组件的重新渲染的方式，我觉得出发点是好的。那「怎么去量化优化前后的成果呢」，比如说这个组件重新渲染了，那重新渲染不好的点在哪，是页面卡顿了吗？或者说这个组件的重新然后带来的后果是不是可以忽略不计，这种判定的标准是什么？
 
-如果要求一定要使用，那前后的效果怎么去量化，减少1秒的时间还是2秒，多少秒合适？我觉得这种颗粒度的优化是非常难进行的，太精细了，一方面很难把握标准，另一方面投入的人力物力比较重。那话说回来，每次这种父子组件间的通信，都得使用 memo 、 useCallback 吗？
+如果要求一定要使用，那前后的效果怎么去量化，减少 1 秒的时间还是 2 秒，多少秒合适？我觉得这种颗粒度的优化是非常难进行的，太精细了，一方面很难把握标准，另一方面投入的人力物力比较重。那话说回来，每次这种父子组件间的通信，都得使用 memo 、 useCallback 吗？
