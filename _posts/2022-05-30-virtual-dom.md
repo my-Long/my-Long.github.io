@@ -9,8 +9,8 @@ catalog: true
 tags:
   - javascript
   - virtual dom
-  - vue
-  - react
+  - Vue
+  - React
 ---
 
 为什么我们需要虚拟 DOM？也许之前我们会回答，虚拟 DOM 是为了提高性能，减少 DOM 操作，提升用户体验。 但是，`svelte` 并没有使用虚拟 DOM，而是直接操作真实的 DOM，并且效率还更高了。确实我们减少了真实 DOM 的操作，但如「vue」和「react」，最后还是得去操作真实的 DOM。
