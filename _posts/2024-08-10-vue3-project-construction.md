@@ -472,7 +472,7 @@ export const useTheme = () => {
 
   // 设置主题
   const setSystemTheme = (theme: string) => {
-    if (theme === "dark") {
+    if (theme === "dark") { 
       document.documentElement.classList.add("dark"); // 启用深色模式
     } else {
       document.documentElement.classList.remove("dark"); // 移除深色模式
