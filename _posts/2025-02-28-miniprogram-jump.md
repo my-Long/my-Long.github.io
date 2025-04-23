@@ -8,7 +8,7 @@ catalog: true
 tags:
   - uniapp
   - miniprogram
-  - 跳转
+  - 跳转限制
 ---
 
 ## 前言
