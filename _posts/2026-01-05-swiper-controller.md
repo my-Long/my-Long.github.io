@@ -200,6 +200,8 @@ const initSwiper = () => {
 };
 ```
 
+<video src="/img/js/swiper-demo1.mp4" controls style="width: 100%; max-width: 800px;"></video>
+
 > 说实话，这也算是「邪修」做法了，但至少能很好地实现需求。我查过很多社区，包括ai等，都找不到「官方正统」的做法...
 >
 > 那这种方式，不仅仅是在「时间轴」上，在一些「tab」切换内容区的需求上，也是能很好适用的。

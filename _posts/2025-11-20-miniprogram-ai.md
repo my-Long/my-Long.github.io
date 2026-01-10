@@ -3,7 +3,8 @@ layout: post
 title: "小程序 AI 聊天"
 subtitle: "「小程序别出心裁的更简单的 AI 聊天功能」"
 author: "My"
-header-style: text
+header-img: "img/js/ai-chat.png"
+header-mask: 0.4
 tags:
   - 小程序
   - AI
