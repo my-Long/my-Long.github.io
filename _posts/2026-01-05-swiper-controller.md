@@ -4,7 +4,6 @@ title: "swiper的控制！！！"
 subtitle: "如何做「时间轴」&&「tab切换」这种轮播图效果？？"
 author: "My"
 header-img: "img/js/swiper-bg.png"
-catalog: true
 header-mask: 0.4
 tags:
   - js

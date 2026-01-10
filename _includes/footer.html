@@ -155,7 +155,7 @@
 
 
 <!-- Side Catalog -->
-{% unless page.no-catalog %}
+{% unless page.no-catalog or page.catalog == false %}
 <script type="text/javascript">
     function generateCatalog(selector) {
 
