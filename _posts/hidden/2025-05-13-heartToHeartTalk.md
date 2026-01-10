@@ -4,6 +4,7 @@ title: "好像「命」真的注定了"
 subtitle: "「我命由我不由天」，自始至终都没有去看《哪吒》"
 author: "My"
 header-style: text
+hidden: true
 tags:
   - 职业
   - 闲聊
