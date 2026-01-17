@@ -3,7 +3,8 @@ layout: post
 title: "小程序 AI 聊天(3)"
 subtitle: "「简单接入下大模型和优化聊天的交互」"
 author: "My"
-header-style: text
+header-img: "img/js/ai-chat.png"
+header-mask: 0.4
 tags:
   - 小程序
   - AI

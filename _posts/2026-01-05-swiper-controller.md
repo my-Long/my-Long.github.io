@@ -4,7 +4,6 @@ title: "swiper的控制！！！"
 subtitle: "如何做「时间轴」&&「tab切换」这种轮播图效果？？"
 author: "My"
 header-img: "img/js/swiper-bg.png"
-catalog: true
 header-mask: 0.4
 tags:
   - js
@@ -200,6 +199,8 @@ const initSwiper = () => {
   // ...其他代码
 };
 ```
+
+<video src="/img/js/swiper-demo1.mp4" controls style="width: 100%; max-width: 800px;"></video>
 
 > 说实话，这也算是「邪修」做法了，但至少能很好地实现需求。我查过很多社区，包括ai等，都找不到「官方正统」的做法...
 >

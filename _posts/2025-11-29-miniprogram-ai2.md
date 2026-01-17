@@ -3,7 +3,8 @@ layout: post
 title: "小程序 AI 聊天(2)"
 subtitle: "「markdown语法&&流式数据」"
 author: "My"
-header-style: text
+header-img: "img/js/ai-chat.png"
+header-mask: 0.4
 tags:
   - 小程序
   - AI
