@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.jpg /Users/lmy/Documents/blog/img/*.png)",
+      "Read(//Users/lmy/Documents/blog/**)",
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.jpg)",
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.png)",
+      "Bash(chmod +x /Users/lmy/Documents/blog/compress-images.sh)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}
