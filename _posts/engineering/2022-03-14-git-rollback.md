@@ -4,7 +4,7 @@ title:      老生常谈的代码回滚
 subtitle:   如果有效的回滚代码
 date:       2022-03-14
 author:     My
-header-img: img/post-bg-debug.png
+header-img: img/engineering/post-bg-debug.png
 catalog: true
 tags:
     - 基础

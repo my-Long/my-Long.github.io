@@ -58,7 +58,7 @@ tags:
 1.  设备访问能力，文件、系统、网络、GPS、加速计、罗盘……
 2.  「第一公民」能力，最明显的莫过于设置导航条和页与页之间的动画。还有 Android 设备上的「添加小程序到桌面」，其实就是个快捷方式。
 
-![](/img/in-post/post-wmu/maoyan.jpg)
+![](/img/miniapp-mobile/in-post/post-wmu/maoyan.jpg)
 
 （图为猫眼 App 与小程序，因为长得像…感觉不小心给老东家竞争对手打广告了?）  
 
@@ -83,7 +83,7 @@ tags:
 
 但是，现实可能并不会这么简单。我们发现，大部分小程序都只提供了其原生应用或 web 应用功能的一个子集。比如文章最早提到的微票儿的「电影演出赛事」小程序，与钱包里的 web 版本相比，UI 体验好了一点，但是功能远没有 web 版本来得丰富，也没有了 web 版本可以分享评论到朋友圈的能力。
 
-![](/img/in-post/post-wmu/wepiao.jpg)
+![](/img/miniapp-mobile/in-post/post-wmu/wepiao.jpg)
 
 （微票儿小程序与其钱包中的内嵌 web 应用对比，web 版的功能要丰富得多。)
 
@@ -117,7 +117,7 @@ tags:
 
 ### 4\. 不在「微信」里，小程序……
 
-![](/img/in-post/post-wmu/question.jpg)
+![](/img/miniapp-mobile/in-post/post-wmu/question.jpg)
 
 ### 5\. 结论？
 

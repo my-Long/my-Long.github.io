@@ -4,7 +4,7 @@ title: Event loop
 subtitle: 怎么去理解 js 的事件循环机制？
 date: 2022-06-05
 author: My
-header-img: img/post-bg-hacker.jpg
+header-img: img/fundamentals/post-bg-hacker.jpg
 catalog: true
 tags:
   - 基础

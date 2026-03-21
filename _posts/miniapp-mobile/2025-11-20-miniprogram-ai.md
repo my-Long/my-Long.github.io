@@ -161,7 +161,7 @@ TIP:为什么要反转聊天内容？
 
 现在布局页面如下：
 
-<img src="/img/post-ai-1.png" width="300" />
+<img src="/img/miniapp-mobile/post-ai-1.png"" width="300" />
 
 ### 2. 发送&&接收消息
 
@@ -410,7 +410,7 @@ onBeforeUnmount(() => {
 
 #### (2). 输出与打字效果预览
 
-<video src="/img/post-ai-2.mp4" controls autoplay muted loop width="300"></video>
+<video src="/img/miniapp-mobile/post-ai-2.mp4"" controls autoplay muted loop width="300"></video>
 
 ### 4. 加载历史消息
 
@@ -527,7 +527,7 @@ onLoad(() => {
 
 其实到这里，AI 聊天的基本功能已经实现完成了，就跟 第一点 说的那样，实现消息上推，历史消息加载，打字机效果。
 
-<video src="/img/post-ai-3.mp4" controls autoplay muted loop width="700"></video>
+<video src="/img/miniapp-mobile/post-ai-3.mp4"" controls autoplay muted loop width="700"></video>
 
 ## 四、布局分析
 
@@ -572,17 +572,17 @@ onLoad(() => {
 - 消息较长，在顶部(被顶部吃掉一部分)。
 
   弹窗应该在消息的内部的顶部。
-  <img src="/img/post-ai-4.png" width="300" />
+  <img src="/img/miniapp-mobile/post-ai-4.png"" width="300" />
 
 - 消息较短，在顶部
 
   弹窗应该在消息的底部。
-  <img src="/img/post-ai-5.png" width="300" />
+  <img src="/img/miniapp-mobile/post-ai-5.png"" width="300" />
 
 - 消息较长，在中间
 
   弹窗应该在消息的内部。
-  <img src="/img/post-ai-6.png" width="300" />
+  <img src="/img/miniapp-mobile/post-ai-6.png"" width="300" />
 
 - 消息较长，在底部(被底部吃掉一部分)。
 

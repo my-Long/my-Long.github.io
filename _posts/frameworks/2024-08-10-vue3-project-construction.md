@@ -32,7 +32,7 @@ tags:
 初始化依赖： `pnpm install`。
 
 将当前项目与远程仓库进行一个关联，到此，一个基本的 vue 项目即搭建好了，后续将添加何种依赖文件。
-![image.png](/img/vue/vue3-template.png)
+![image.png](/img/frameworks/vue/vue3-template.png)
 
 ### 3. 项目布局
 
@@ -76,7 +76,7 @@ tags:
 ```
 
 网页上的效果如下：
-![image.png](/img/vue/vue3-layout.png)
+![image.png](/img/frameworks/vue/vue3-layout.png)
 
 ### 4. 路由配置
 
@@ -844,7 +844,7 @@ router.beforeEach((to, from, next) => {
 
 在代码里，我们需要使用 `{ { $t('home.title') } }` 来展示内容，这根本不知道 `home.title` 是什么，这将难以维护。
 
-![image.png](/img/vue/lang-temp.png)
+![image.png](/img/frameworks/vue/lang-temp.png)
 
 ##### 9.5.3 i18n Ally 插件
 
@@ -852,41 +852,41 @@ router.beforeEach((to, from, next) => {
 
 - 捕捉需要翻译的内容
 
-  ![image.png](/img/vue/lang-tem1.png)
+  ![image.png](/img/frameworks/vue/lang-tem1.png)
 
 - 提取文案，生成 key
 
-  ![image.png](/img/vue/lang-tem2.png)
+  ![image.png](/img/frameworks/vue/lang-tem2.png)
 
 - 生成路径
 
   提取文案后会生成路径 `ni-hao`，这里可以理解为「根路径」，但我是使用模块进行区分的，因此将路径改成 `home.ni-hao`。
 
-  ![image.png](/img/vue/lang-tem3.png)
+  ![image.png](/img/frameworks/vue/lang-tem3.png)
 
 - 替换内容
 
   这时，可进行内容替换，如是在 `template` 模版中，则使用第一个。
 
-  ![image.png](/img/vue/lang-tem4.png)
+  ![image.png](/img/frameworks/vue/lang-tem4.png)
 
 - 基本语言与翻译语言
 
   上一步即可生成 key，但是，生成的是 `cn.json`的还是 `en.json`的，需要我们进行配置。
 
-  ![image.png](/img/vue/lang-tem5.png)
+  ![image.png](/img/frameworks/vue/lang-tem5.png)
 
   如上图，基准语言则为生成 key 的语言，可视语言即为在代码中默认看到的语言。如我配置的都是 `cn`。 看一下效果：
 
-  ![image.png](/img/vue/lang-tem6.png)
-  ![image.png](/img/vue/lang-tem7.png)
-  ![image.png](/img/vue/lang-tem8.png)
+  ![image.png](/img/frameworks/vue/lang-tem6.png)
+  ![image.png](/img/frameworks/vue/lang-tem7.png)
+  ![image.png](/img/frameworks/vue/lang-tem8.png)
 
 - 翻译情况
 
   可以在插件面板查看翻译情况，可以看到，那些内容是已经翻译的。 如之前的 「home.ni-hao」，字段只在 `cn.json` 中有，而在 `en.json` 中没有。
 
-  ![image.png](/img/vue/lang-tem9.png)
+  ![image.png](/img/frameworks/vue/lang-tem9.png)
 
 - 翻译
 

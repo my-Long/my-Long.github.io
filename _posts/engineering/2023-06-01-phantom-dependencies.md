@@ -30,7 +30,7 @@ tags:
 **npm 对依赖数的处理**
 
 这里面涉及到了「依赖图」和「文件树」的概念。依赖图是图结构，一个包依赖另外的两个包，另外两个包又依赖其他的包。文件树是树结构，每个包都是一个文件夹，里面又有其他的包，这会造成包重复。
-![image.png](/img/post-content-dependent.png)
+![image.png](/img/engineering/post-content-dependent.png)
 如 图2 是 npm 早期的做法，是文件树，每个包都是一个文件夹，里面又有其他的包。图3 是借用了 yarn 的做法，不管依赖的层级有多深，全部平铺，为「一级子目录」，这样可以避免重复。
 
 但是，这样处理后，都是子文件夹，都可以使用，这就形成了「幻影依赖」。
@@ -38,5 +38,5 @@ tags:
 **pnpm 的处理方案**
 
 首先在 node_modules 里，会有一个仓库 `.pnpm`，里面有所有依赖，包括直接的和间接的。因为这些依赖存在于一个仓库，不是 node_modules 里的子文件夹，因此不能直接使用。
-![image.png](/img/post-content-dependent2.png)
+![image.png](/img/engineering/post-content-dependent2.png)
 pnpm 把仓库建立好之后，重新生成一个树形目录（图2）。这样，只能引用子文件夹里的包，而不能引用其他的。而 图2 只是一个树关系，并没有具体的版本号，可以理解为一个快捷方式，这样不会占用额外的磁盘空间。

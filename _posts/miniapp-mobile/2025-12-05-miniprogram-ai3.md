@@ -27,7 +27,7 @@ tags:
 
 在 [科大讯飞控制台](https://console.xfyun.cn/services/cbm) 中，创建应用，并获取 `APIPassword`。
 
-<img src="/img/miniprogram/keda.png" width="800" />
+<img src="/img/miniapp-mobile/miniprogram/keda.png" width="800" />
 
 ### 2. 环境依赖
 
@@ -331,7 +331,7 @@ const onStopSuccess = (text) => {
 
 在 `input` 组件中，[默认上推页面](https://uniapp.dcloud.net.cn/component/input.html)，`adjust-position` 为 `true`。如果为 `false`，键盘又会盖住输入框。
 
-<img src="/img/miniprogram/page.png" width="800" />
+<img src="/img/miniapp-mobile/miniprogram/page.png" width="800" />
 
 键盘上推会把页面推出容器，怎么调都不方便。通过观察「期望」效果，我们可以另辟蹊径：
 
@@ -380,4 +380,4 @@ const onKeyboardheightchange = (e) => {
 
 效果如下：
 
-<video src="/img/miniprogram/effect.mp4" controls autoplay muted loop width="300"/>
+<video src="/img/miniapp-mobile/miniprogram/effect.mp4" controls autoplay muted loop width="300"/>

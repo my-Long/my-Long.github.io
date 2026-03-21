@@ -70,7 +70,7 @@ tags:
 </template>
 ```
 
-<img src="/img/post-ai-7.png" width="300" />
+<img src="/img/miniapp-mobile/post-ai-7.png"" width="300" />
 
 ## 二、处理 mardown 数据
 
@@ -203,7 +203,7 @@ const style = {
 
 以上两个显示 bug 如下：
 
-<video src="/img/post-ai-8.mp4" controls autoplay muted loop width="300"></video>
+<video src="/img/miniapp-mobile/post-ai-8.mp4"" controls autoplay muted loop width="300"></video>
 
 **基于以上问题，需要对 `marked` 解析出来的 html 字符串进行一些处理，以解决这些显示 bug。**
 
@@ -231,7 +231,7 @@ const typingText = (text) => {
 };
 ```
 
-<video src="/img/post-ai-9.mp4" controls autoplay muted loop width="300"></video>
+<video src="/img/miniapp-mobile/post-ai-9.mp4"" controls autoplay muted loop width="300"></video>
 
 ## 三、加载状态
 
@@ -471,6 +471,6 @@ const sendMessage = () => {
 
 ## 五、项目效果
 
-<video src="/img/post-ai-10.mp4" controls autoplay muted loop width="300"></video>
+<video src="/img/miniapp-mobile/post-ai-10.mp4"" controls autoplay muted loop width="300"></video>
 
 可访问 [miniprogram-ai](https://github.com/my-Long/miniProgram-ai) 查看源代码，目前代码在 `dev` 和 `main` 中。

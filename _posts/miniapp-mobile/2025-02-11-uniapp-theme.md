@@ -106,7 +106,7 @@ html[data-theme="dark"] {
 ```
 
 理想是美好的，现实是残酷的，无法使用该变量。
-![image.png](/img/vue/uniapp-error.png)
+![image.png](/img/miniapp-mobile/vue/uniapp-error.png)
 
 查阅相应资料后，得出结论：
 

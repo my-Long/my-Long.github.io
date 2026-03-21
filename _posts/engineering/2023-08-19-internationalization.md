@@ -3,7 +3,7 @@ layout: post
 title: "web 国际化语言配置"
 subtitle: "vue开发中国际化的一些方法"
 author: "My"
-header-img: img/post-bg-mini.webp
+header-img: img/engineering/post-bg-mini.webp
 catalog: true
 tags:
   - web
@@ -282,4 +282,4 @@ export default {
 
 总的来说，i18n Ally 是一个很好的工具，可以自动生成 `i18n` 配置，并支持多种语言，还可以自动翻译 `key` 到其他语言，最重要的一点是可以在模板中显示翻译结果，这就大大增了开发效率。
 
-![效果图](/img/post-lang-i18n.png)
+![效果图](/img/engineering/post-lang-i18n.png)

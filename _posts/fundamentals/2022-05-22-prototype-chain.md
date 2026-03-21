@@ -4,7 +4,7 @@ title: Prototype and prototype chain ?
 subtitle: 原型与原型链之间错杂的关系
 date: 2022-05-22
 author: My
-header-img: img/post-bg-js-version.jpg
+header-img: img/fundamentals/post-bg-js-version.jpg
 catalog: true
 tags:
   - 基础
@@ -23,7 +23,7 @@ tags:
 <iframe width="966" height="543" src="https://www.youtube.com/embed/0D0Vk1rBpsc" title="7 分鐘圖解搞懂原型鏈" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 下面我们开始对他们的关系进行梳理，看这张图，理解 new。
-![image.png](/img/post-prototype1.png)
+![image.png](/img/fundamentals/post-prototype1.png)
 
 比如说我们有一个普通函数 `obj`，我们将通过 new 这个函数，创造一个对象（实例）。
 
@@ -62,7 +62,7 @@ const newObj = new obj();
 默认情况下，「prototype」对象有一个属性「constructor」，它也是一个对象，指向了「构造函数」本身。
 
 「**原型，即 prototype 是一个普通的 Object 对象**」
-![image.png](/img/post-prototype2.png)
+![image.png](/img/fundamentals/post-prototype2.png)
 
 比如 `text` 函数，它的原型（暂且称为 obj），即伪代码`obj = test.prototype`，`obj.constructor = test`
 
@@ -72,7 +72,7 @@ console.log(test.prototype);
 console.log(test.prototype.constructor);
 console.log(test.prototype.constructor === test);
 ```
-![image.png](/img/post-prototype3.png)
+![image.png](/img/fundamentals/post-prototype3.png)
 
 ### 隐式原型
 >隐式原型，通常写成 「__proto__」，在浏览器调试中显示未 [[Prototype]]
@@ -88,7 +88,7 @@ console.log("a", a.__proto__ === Object.prototype);//true
 ```
 
 得到实例对象和构造函数之间的关系后，我们可以做一些方便的操作。先看一个图。
-![image.png](/img/post-prototype4.png)
+![image.png](/img/fundamentals/post-prototype4.png)
 
 通过「构造函数add」new 出来了两个实例对象 对象1 和 对象2 。这两个实例对象的「__proto__」都指向「构造函数add」的原型。同一个构造函数可以创建多个不同的对象，这些对象的隐式原型指向的原型是一样的，所以该内存空间是共用的。
 
@@ -116,7 +116,7 @@ console.log(a.__proto__.sayHi === b.__proto__.sayHi); // true
 
 通过上面 「__proto__」和构造函数的关系，其实已经是就引出原型链了。
 
-![image.png](/img/post-prototype5.png)
+![image.png](/img/fundamentals/post-prototype5.png)
 
 ```js
 function Obj() {}

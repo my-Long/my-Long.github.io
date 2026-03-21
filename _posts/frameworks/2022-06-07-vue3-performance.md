@@ -130,10 +130,10 @@ render(ctx,_ceche){
 ```
 
 vue2 在对比新旧树的时候，并不知道哪些节点是静态的，哪些是动态的。因此只能一层一层比较，这就浪费了大部分时间在对比「静态节点」上。
-![image.png](/img/post-content-tree1.png)
+![image.png](/img/frameworks/post-content-tree1.png)
 
 vue3 的编译器就格外强大了，他会对每个节点进行标记，标记出哪些是静态的，哪些是动态的。
-![image.png](/img/post-content-tree2.png)
+![image.png](/img/frameworks/post-content-tree2.png)
 
 编译器会把所有的「动态节点」提取到根节点form 里。form 节点里有一个数组，记录了后代节点中哪些是动态的。那么在对比的时候，不是整棵树进行对比，而是直接找到根节点，也就是 block 节点。在对比时，循环数组进行对比，即只对比动态节点，越过了静态节点。而树不稳定时，不稳定的那个分支会自动变成一个 block 。
 

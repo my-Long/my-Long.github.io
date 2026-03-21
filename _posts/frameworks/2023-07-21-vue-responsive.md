@@ -230,7 +230,7 @@ fn();
 state.a = "gag"; //修改
 ```
 
-![image.png](/img/vue/post-pic1.png)
+![image.png](/img/frameworks/vue/post-pic1.png)
 
 #### `Proxy` 边界处理
 
@@ -578,7 +578,7 @@ function fn() {
 fn();
 ```
 
-![image.png](/img/vue/post-pic2.png)
+![image.png](/img/frameworks/vue/post-pic2.png)
 
 读到了 `length` 和 `数组索引`，没问题。依赖重复收集的事后面再说。
 
@@ -589,7 +589,7 @@ for (const item of state) {
 }
 ```
 
-![image.png](/img/vue/post-pic3.png)
+![image.png](/img/frameworks/vue/post-pic3.png)
 
 #### 数组的 `includes()`
 
@@ -600,7 +600,7 @@ function fn() {
 fn();
 ```
 
-![image.png](/img/vue/post-pic4.png)
+![image.png](/img/frameworks/vue/post-pic4.png)
 
 #### 数组的 `lastIndexOf()`
 
@@ -611,7 +611,7 @@ function fn() {
 fn();
 ```
 
-![image.png](/img/vue/post-pic5.png)
+![image.png](/img/frameworks/vue/post-pic5.png)
 
 #### 数组中含有对象
 
@@ -626,7 +626,7 @@ function fn() {
 fn();
 ```
 
-![image.png](/img/vue/post-pic6.png)
+![image.png](/img/frameworks/vue/post-pic6.png)
 
 按理说应该是能找到 `{}` 的，但是实际上并没有。在查找的时候，是在源对象 `arr` 里查找还是在响应对象 `state` 里查找？ 答案是：在源对象 `arr` 里查找。 但是这里明显是在 `state` 里查找。
 
@@ -901,7 +901,7 @@ export function track(target, type, key) {
 
 读起来就是，哪个函数依赖哪个对象的哪个属性的读取行为，那 dep 是一个集合，就会保留很多个函数。
 
-![image.png](/img/vue/post-pic7.png)
+![image.png](/img/frameworks/vue/post-pic7.png)
 
 在 `effect.js` 中实现 `map`，进而处理依赖收集和派发更新。
 
@@ -1106,7 +1106,7 @@ export function effect(fn) {
 
 到此，一个基本的数据结构就建立好了。当响应式数据被读取时，会触发 `track` 函数，建设「数据结构」。
 
-![image.png](/img/vue/post-pic8.png)
+![image.png](/img/frameworks/vue/post-pic8.png)
 
 #### 派发更新
 
@@ -1149,7 +1149,7 @@ return effectFn;
 这是基本的一个结构，收集和派发的属性是相对应的，比如说之前是 `get` 动作，存了一些函数在 A 集合。现在是 `add` 动作，那应该去哪个集合拿函数呢？`add` 动作也触发了 `has`，`has` 也存了一些函数在 B 集合。
 
 因此，不确定集合，就得有个映射关系，把这些函数集合都拿到，然后遍历，找到里面的函数，依次执行。
-![image.png](/img/vue/post-pic9.png)
+![image.png](/img/frameworks/vue/post-pic9.png)
 
 派发更新时，需要根据操作类型，找到对应的依赖收集的函数集合。
 
@@ -1645,7 +1645,7 @@ state.a++;
 console.log("sum.value", sum.value);
 ```
 
-![image.png](/img/vue/post-pic10.png)
+![image.png](/img/frameworks/vue/post-pic10.png)
 `state.a`的值变化后，依赖发生变化，但是值却还是之前的值。因为`dirty`变量变为`false`，不再依赖收集。依赖发生变化后，`dirty`应该变为`true`。
 
 ```javascript

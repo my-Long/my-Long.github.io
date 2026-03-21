@@ -90,7 +90,7 @@ tags:
 
 起初，我们在沟通时，我提出了一个「资产盘点」的方案，如下：
 
-![资产盘点方案](/img/post-dev-allocationPlan.png)
+![资产盘点方案](/img/engineering/post-dev-allocationPlan.png)
 
 > 应当有几个角色，拥有不同的权限。
 > 总仓库： 运营人员的老大、有高权限的客服、有高权限的业务人员。

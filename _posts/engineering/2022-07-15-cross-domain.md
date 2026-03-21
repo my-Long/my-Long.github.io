@@ -21,7 +21,7 @@ tags:
   </script>
 ```
 
-![image.png](/img/js/post-content-cross.png)
+![image.png](/img/engineering/js/post-content-cross.png)
 
 这就是很典型的「跨域」问题。
 
@@ -62,7 +62,7 @@ tags:
 - 对脚本发出的跨域请求严格限制
 - 对不同源的请求，浏览器会做出不同的限制策略
 
-![image.png](/img/js/post-content-cross2.png)
+![image.png](/img/engineering/js/post-content-cross2.png)
 
 ## 跨域解决方案
 
@@ -72,7 +72,7 @@ CORS（Cross-Origin Resource Sharing）是一种机制，它使用额外的 HTTP
 
 它是正统的跨域解决方案，同时也是浏览器推荐的解决方案。
 
-![image.png](/img/js/post-content-cross3.png)
+![image.png](/img/engineering/js/post-content-cross3.png)
 
 **使用 CORS 解决跨域，必须要保证服务器是「自己人」**
 
@@ -96,7 +96,7 @@ CORS 将请求分为两类：「简单请求」和「预检请求」，对不同
 
 符合简单请求的请求，浏览器会直接发出请求，不用发起预检请求。
 
-![image.png](/img/js/post-content-cross4.png)
+![image.png](/img/engineering/js/post-content-cross4.png)
 
 > 浏览器会把这个「源」发给服务器，说 hi，bro，你看这个人有点头脑简单，没啥威胁，要不就让他过了吧。服务器说这个人确实头脑简单，我给你发个通行证，你对一下，如果是他就放他进来吧。
 
@@ -108,7 +108,7 @@ CORS 将请求分为两类：「简单请求」和「预检请求」，对不同
 
 不是「简单请求」的，就属于「预检请求」。
 
-![image.png](/img/js/post-content-cross5.png)
+![image.png](/img/engineering/js/post-content-cross5.png)
 
 > 预检请求时，我们可以这么理解：浏览器发现你这个人偷偷摸摸，贼眉鼠眼，一股匪气，因此不会电话联系服务器，而是直接把你拦在外面。意识到事情可能很严重，于是亲自到服务器那里去确定，表明这个人穿着怎么样，举止怎么样，样貌如何。服务器经过严格地评定，如果允许通过，就返回通行证，通行证里包含着那个人的所有信息，如衣服颜色，身高，戴不戴眼镜，还有通行证的有效期。
 >
@@ -147,13 +147,13 @@ CORS 将请求分为两类：「简单请求」和「预检请求」，对不同
 ### JSONP（JSON with Padding）
 
 在很久很久以前...并没有 CORS 方案。
-![image.png](/img/js/post-content-cross6.png)
+![image.png](/img/engineering/js/post-content-cross6.png)
 
 没有规则，Ajax 无法工作，只能用 JSONP。
 
 JSONP（JSON with Padding）是一种利用 `<script>` 标签的跨域请求。它通过 `<script>` 标签的 `src` 属性，向服务器请求数据，服务器把数据放在一个回调函数的参数中返回，这样就可以在不影响页面的情况下，获取服务器端的数据。
 
-![image.png](/img/js/post-content-cross7.png)
+![image.png](/img/engineering/js/post-content-cross7.png)
 
 `JSONP` 的使用格式：
 
@@ -202,11 +202,11 @@ function request(url) {
 CORS 和 JSONP 均要求服务器是「自己人」，如果不是，可以使用「代理」方案。
 
 这是一个普通的请求，因为是异源，因此会产生跨域问题。
-![image.png](/img/js/post-content-cross8.png)
+![image.png](/img/engineering/js/post-content-cross8.png)
 
 我们可以找一个中间人做「代理」。注意跨域请求时可以发送的，只不过是在响应的时候被拦住了。
 
-![image.png](/img/js/post-content-cross9.png)
+![image.png](/img/engineering/js/post-content-cross9.png)
 
 ```javascript
 // proxy
@@ -226,12 +226,12 @@ app.get("/hero", async (req, res) => {
 
 因此，跨域的方案要保持在「开发环境」和「生产环境」是一致的。
 
-![image.png](/img/js/post-content-cross10.png)
+![image.png](/img/engineering/js/post-content-cross10.png)
 
 所以一切标准从 「生产环境」出发。
 
 - 生产环境**跨域**
-  ![image.png](/img/js/post-content-cross11.png)
+  ![image.png](/img/engineering/js/post-content-cross11.png)
 
   图片、js、页面等静态资源放到了「静态资源服务器」，通过 a.com 去访问静态资源服务器，所以页面源是 a.com。另一个是「数据服务器」，后端接口资源就在这个服务器，所以请求源是 b.com。源不同，产生跨域，所以只能选择 JSONP 或者 CORS 。
 
@@ -240,7 +240,7 @@ app.get("/hero", async (req, res) => {
   总的来说，只要用到了 CORS，那就是后端问题，他不解决那就打一架，打完了还得他解决。
 
 - 生产环境**没有跨域**
-  ![image.png](/img/js/post-content-cross12.png)
+  ![image.png](/img/engineering/js/post-content-cross12.png)
 
   前端打包后，把 dist 包给运维，运维放到服务器的某个目录下。后端打包后，也把包给运维，运维启动一个服务器。这种情况，浏览器不能直接访问到静态目录或者测试服务器，需要启动 web 服务，一般使用 Nginx 反向代理。浏览器访问时，使用同一个源访问这个 Nginx，只是 path 不一样。这时 path 有个标识，如果是以 api 开头的，就连到测试服务器。如果没有 api 开头，那就访问静态资源。
 

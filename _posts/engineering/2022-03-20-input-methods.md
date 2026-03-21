@@ -4,7 +4,7 @@ title: 中文输入法导致的高频问题
 subtitle: High-frequency problems caused by Chinese input methods
 date: 2022-03-20
 author: My
-header-img: img/post-bg-keybord.jpg
+header-img: img/engineering/post-bg-keybord.jpg
 catalog: true
 tags:
   - 基础

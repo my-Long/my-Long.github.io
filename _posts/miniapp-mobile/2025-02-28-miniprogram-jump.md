@@ -3,7 +3,7 @@ layout: post
 title: "uniapp 小程序跳转"
 subtitle: "uniapp 支付宝小程序之间跳转？"
 author: "My"
-header-img: img/post-bg-mini.webp
+header-img: img/miniapp-mobile/post-bg-mini.webp
 catalog: true
 tags:
   - uniapp
@@ -65,7 +65,7 @@ tags:
 ```
 
 开发时，在 `HBuilderX` 中，点击 「运行」 就可以看到自定义运行的路径。
-![image.png](/img/post-bg-mini-h.png)
+![image.png](/img/miniapp-mobile/post-bg-mini-h.png)
 
 #### 3. 简单的 api 环境配置
 
@@ -105,7 +105,7 @@ const getUserId = () => {
 
 如果已经真机调试并且跳转了，你会发现，还是无法跳转，错误提示如下：
 
-![image.jpeg](/img/post-mini-error.jpeg)
+![image.jpeg](/img/miniapp-mobile/post-mini-error.jpeg)
 
 ### 2. 跳转配置与方案
 
