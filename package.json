@@ -10,7 +10,7 @@
   },
   "type": "module",
   "scripts": {
-    "start": "bundle exec jekyll serve",
+    "start": "node scripts/start.cjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
