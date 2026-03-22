@@ -22,7 +22,7 @@ tags:
 
 点击 「时间轴」的项、拖动、左右按钮和拖动时，「内容区」则同步滚动；拖动「内容区」，则「时间轴」也同步滚动。
 
-<video src="/img/miniapp-mobile/js/swiper-demo.mp4" controls style="width: 100%; max-width: 800px;"></video>
+<video src="/img/miniapp-mobile/swiper-demo.mp4" controls style="width: 100%; max-width: 800px;"></video>
 
 在探索过程中，走了好多「弯路」，如下面的
 
@@ -200,7 +200,7 @@ const initSwiper = () => {
 };
 ```
 
-<video src="/img/miniapp-mobile/js/swiper-demo1.mp4" controls style="width: 100%; max-width: 800px;"></video>
+<video src="/img/miniapp-mobile/swiper-demo1.mp4" controls style="width: 100%; max-width: 800px;"></video>
 
 > 说实话，这也算是「邪修」做法了，但至少能很好地实现需求。我查过很多社区，包括ai等，都找不到「官方正统」的做法...
 >
