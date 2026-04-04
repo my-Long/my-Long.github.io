@@ -3,7 +3,7 @@
 > I never expected this to become popular.
 
 ### home
-![](http://my-long.github.io/img/home-indr.png)
 
+![](http://my-long.github.io/img/common-homeIndr.png)
 
 模板来自这位大佬[Hux Blog](https://huangxuan.me)
