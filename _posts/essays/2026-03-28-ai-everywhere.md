@@ -2,7 +2,7 @@
 layout: post
 title: "AI真的是无视一切到处闯吗？"
 subtitle: "AI依赖环境吗？还是说已经全智能了呢？能替代人了吗？"
-date: 2026-03-29
+date: 2026-03-28
 author: My
 header-style: text
 tags:
