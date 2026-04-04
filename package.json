@@ -1,25 +1,25 @@
 {
-    "name": "my-blog",
-    "title": "My Blog",
-    "author": "my <mengyulong24@gmail.com>",
-    "version": "1.8.2",
-    "homepage": "http://my-long.github.io",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/my-long/my-long.github.io"
-    },
-    "bugs": "https://github.com/my-long/my-long.github.io/issues",
-    "devDependencies": {
-        "grunt": "^1.6.1",
-        "grunt-banner": "~0.2.3",
-        "grunt-contrib-less": "^2.0.0",
-        "grunt-contrib-uglify": "^4.0.1",
-        "grunt-contrib-watch": "^1.1.0"
-    },
-    "scripts": {
-        "start": "bundle exec jekyll serve",
-        "dev": "grunt watch & npm run start",
-        "boil": "git push boilerplate boilerplate:master",
-        "push": "git push origin master --tag"
-    }
+  "name": "my-blog",
+  "title": "My Blog",
+  "author": "my <mengyulong24@gmail.com>",
+  "version": "1.8.2",
+  "homepage": "http://my-long.github.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/my-long/my-long.github.io"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/start.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "watch:css": "vite build --watch",
+    "build:css": "vite build"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "less": "^3.13.1",
+    "vite": "^5.4.21"
+  }
 }

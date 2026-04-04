@@ -134,7 +134,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
 }
 ```
 
-![image.png](/img/post-form-empty.png)
+![image.png](/img/react_note/post-form-empty.png)
 
 **特别说明几个组件的用法：**
 
@@ -202,7 +202,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
     />
   </Form.Item>;
   ```
-  ![image.png](/img/post-form-email.png)
+  ![image.png](/img/react_note/post-form-email.png)
 - addonBefore: 前置标签，可以设置一些提示信息或选项。
   如手机号码，我们可以设置 `addonBefore` 为一个 `Select` 组件，选择国家代码。
 
@@ -227,7 +227,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
   </Form.Item>;
   ```
 
-  ![image.png](/img/post-form-phone.png)
+  ![image.png](/img/react_note/post-form-phone.png)
 
 ### Data format verification
 
@@ -329,7 +329,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
   ```
 - 注意点，
  在使用 `setFieldValue` 对单个表单项进行赋值时，我发现并不会出现类型提示。如对 `age` 进行赋值，按理说 value 应该是 `number` 类型，但是实际上，`setFieldValue` 并不会对类型进行校验。
-![image.png](/img/post-form-agetype.png)
+![image.png](/img/react_note/post-form-agetype.png)
 
   因此，找到 `setFieldValue` 的定义，「value」的类型是 `any` 。
   ```tsx
@@ -339,7 +339,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
   ```tsx
   setFieldValue: <K extends keyof Values>(name: K, value: Values[K]) => void;
   ```
-  ![image.png](/img/post-form-agetype1.png)
+  ![image.png](/img/react_note/post-form-agetype1.png)
   使用这种方式，就可以对 `age` 进行类型标注，并保证数据类型一致。
 
   ### Summarize

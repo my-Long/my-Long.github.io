@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.jpg /Users/lmy/Documents/blog/img/*.png)",
+      "Read(//Users/lmy/Documents/blog/**)",
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.jpg)",
+      "Bash(ls -lh /Users/lmy/Documents/blog/img/*.png)",
+      "Bash(chmod +x /Users/lmy/Documents/blog/compress-images.sh)",
+      "Bash(git checkout:*)",
+      "Bash(grep -r \"/img/fundamentals/\" /Users/lmy/Documents/blog/_posts/fundamentals/*.md)",
+      "Bash(grep -E \"^fundamentals$|^frameworks$|^engineering$|^miniapp-mobile$|^essays$\")",
+      "Bash(find /Users/lmy/Documents/blog/_posts -name *.md -exec grep -l img/ {})",
+      "Bash(2)"
+    ]
+  }
+}
