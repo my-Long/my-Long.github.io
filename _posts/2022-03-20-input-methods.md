@@ -1,5 +1,6 @@
 ---
-title: High-frequency problems caused by Chinese input method
+title: "Chinese IME Input Issues in Web"
+description: "Common bugs triggered by Chinese input methods in browser text fields and how to handle compositionstart and compositionend events."
 date: 2022-03-20 00:00:00 +0800
 categories: [JS, Base]
 tags: [input,component]

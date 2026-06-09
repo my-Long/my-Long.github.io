@@ -1,6 +1,6 @@
 ---
-title: "vue3 performance improvement"
-description: "What optimizations have been made in vue3’s performance?"
+title: "Vue3 Performance Optimizations"
+description: "A breakdown of Vue3’s compile-time optimizations: static hoisting, patch flags, block tree, and event handler caching."
 date: 2022-06-07 00:00:00 +0800
 categories: [Vue]
 tags: [vue, optimization]

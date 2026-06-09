@@ -1,6 +1,6 @@
 ---
-title: "uniapp 主题切换的实践"
-description: "如何在 uniapp 中实现主题切换？ 本文将介绍两种方法：类名和自定义变量。"
+title: "Theme Switching in UniApp"
+description: "Two approaches to implement theme switching in UniApp: CSS class toggling and CSS custom variables."
 date: 2025-02-11 00:00:00 +0800
 categories: [MiniApp]
 tags: [uniapp]

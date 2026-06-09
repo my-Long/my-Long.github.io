@@ -1,6 +1,6 @@
 ---
-title: "Vue ui update"
-description: "When does vue update ui?"
+title: "When Does Vue Update the DOM"
+description: "Understanding Vue's asynchronous DOM update mechanism and why UI changes don't always happen immediately after data changes."
 date: 2023-08-24 00:00:00 +0800
 categories: [Vue]
 tags: [vue,component]

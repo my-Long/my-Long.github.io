@@ -1,5 +1,6 @@
 ---
-title: "小程序 AI 聊天(2)"
+title: "AI Chat in Mini Program (2)"
+description: "Continued exploration of AI chat in Mini Program: refining the interaction and handling edge cases."
 date: 2025-11-29 00:00:00 +0800
 categories: [MiniApp]
 tags: [uniapp, ai]

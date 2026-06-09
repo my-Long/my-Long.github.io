@@ -1,5 +1,6 @@
 ---
-title: "Phantom dependency"
+title: "Understanding Phantom Dependencies"
+description: "What phantom dependencies are, why they cause hidden bugs, and how pnpm eliminates them by design."
 date: 2023-06-01 00:00:00 +0800
 categories: [JS, Engineering]
 tags: [pnpm]

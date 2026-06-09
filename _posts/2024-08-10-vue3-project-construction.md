@@ -1,6 +1,6 @@
 ---
-title: "vue3项目0到1的探索之路"
-description: "一个项目包括语言、框架、构建工具、路由、状态管理、UI组件..."
+title: "Building a Vue3 Project from Scratch"
+description: "A full walkthrough of setting up a Vue3 project: tooling, routing, state management, UI library, i18n, and more."
 date: 2024-08-10 00:00:00 +0800
 categories: [Vue]
 tags: [vue]

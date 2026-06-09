@@ -1,5 +1,6 @@
 ---
-title: "告别 「if-else」"
+title: "Replace If-Else with Early Return"
+description: "How to simplify nested conditionals using early return and Map structures for cleaner, more readable code."
 date: 2025-03-06 00:00:00 +0800
 categories: [JS, Base]
 tags: [map]

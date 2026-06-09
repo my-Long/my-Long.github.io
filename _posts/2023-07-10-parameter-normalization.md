@@ -1,5 +1,6 @@
 ---
-title: "Parameter Normalization"
+title: "Parameter Normalization Pattern"
+description: "A pattern for handling flexible function parameters that accept both shorthand and full-form inputs."
 date: 2023-07-10 00:00:00 +0800
 categories: [JS, Base]
 ---

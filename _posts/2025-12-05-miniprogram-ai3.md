@@ -1,6 +1,6 @@
 ---
-title: "小程序 AI 聊天(3)"
-description: "接入科大讯飞大模型，实现流式数据接口，并优化聊天交互。"
+title: "AI Chat in Mini Program (3)"
+description: "Integrating iFlytek LLM with streaming API response and optimizing the chat interaction experience."
 date: 2025-12-05 00:00:00 +0800
 categories: [MiniApp]
 tags: [uniapp, ai]

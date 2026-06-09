@@ -1,6 +1,6 @@
 ---
-title: "小程序 AI 聊天"
-description: "在微信小程序中，对接大模型，使用页面翻转的方式实现 AI 聊天功能。"
+title: "AI Chat in Mini Program"
+description: "Integrating LLM into WeChat Mini Program with a page-flip animation to build an AI chat experience."
 date: 2025-11-20 00:00:00 +0800
 categories: [MiniApp]
 tags: [uniapp,ai]

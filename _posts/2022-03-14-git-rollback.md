@@ -1,5 +1,6 @@
 ---
-title: Git rollback
+title: "Git Rollback Strategies"
+description: "The difference between git revert and git reset, and when to use each for rolling back commits."
 date: 2022-03-14 16:33:00 +0800
 categories: [JS, Engineering]
 tags: [git]

@@ -1,5 +1,6 @@
 ---
-title: "Web International language configuration"
+title: "i18n Setup in Vue Projects"
+description: "Step-by-step guide to configuring internationalization in a Vue project using vue-i18n with dynamic locale switching."
 date: 2023-08-19 00:00:00 +0800
 categories: [JS, Engineering]
 tags: [vue, i18n]

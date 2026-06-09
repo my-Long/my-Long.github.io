@@ -1,6 +1,6 @@
 ---
-title: "Thoughts on Vue’s responsiveness principles"
-description: "What are the principles behind Vue’s responsiveness?"
+title: "How Vue Reactivity Works"
+description: "A deep dive into Vue’s reactivity system: the relationship between data and functions, dependency tracking, and how Proxy powers it all."
 date: 2023-07-21 00:00:00 +0800
 categories: [Vue]
 tags: [vue]

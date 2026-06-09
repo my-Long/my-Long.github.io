@@ -1,5 +1,6 @@
 ---
-title: "Cross-domain"
+title: "Cross-Origin Requests Explained"
+description: "Why browsers block cross-origin requests, how CORS works, and common solutions including proxy and JSONP."
 date: 2022-07-15 00:00:00 +0800
 categories: [JS, Engineering]
 tags: [cross-domain]

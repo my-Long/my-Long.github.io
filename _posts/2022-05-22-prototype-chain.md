@@ -1,5 +1,6 @@
 ---
-title: Prototype and prototype chain
+title: "JavaScript Prototype Chain"
+description: "How prototypal inheritance works in JS: the relationship between __proto__, prototype, and constructor."
 date: 2022-05-22 00:00:00 +0800
 categories: [JS, Base]
 tags: [prototype]

@@ -1,5 +1,6 @@
 ---
-title: 闭包与内存泄漏的纠葛
+title: "Closures and Memory Leaks"
+description: "How closures can unintentionally hold references and cause memory leaks, with patterns to avoid them."
 date: 2022-04-27 00:00:00 +0800
 categories: [JS, Base]
 tags: [javascript]

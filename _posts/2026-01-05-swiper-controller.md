@@ -1,6 +1,6 @@
 ---
-title: "swiper的控制！！！"
-description: "如何做「时间轴」&&「tab切换」这种轮播图效果？使用 Swiper Controller 模式实现双向同步控制。"
+title: "Two-way Swiper Control"
+description: "How to implement timeline and tab-switching carousel effects using Swiper Controller for bidirectional sync."
 date: 2026-01-05 00:00:00 +0800
 categories: [JS]
 tags: [swiper,vue,react,component]

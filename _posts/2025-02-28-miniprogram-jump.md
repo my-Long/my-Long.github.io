@@ -1,6 +1,6 @@
 ---
-title: "Jump between mini programs"
-description: "Jump between mini programs, and get userId from old mini program."
+title: "Cross Mini Program Navigation"
+description: "How to navigate between different mini programs and pass user identity data during the handoff."
 date: 2025-02-28 00:00:00 +0800
 categories: [MiniApp]
 tags: [uniapp]

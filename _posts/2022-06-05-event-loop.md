@@ -1,5 +1,6 @@
 ---
-title: Event loop
+title: "JavaScript Event Loop"
+description: "How the call stack, task queue, and microtask queue interact to make JavaScript's single-threaded async model work."
 date: 2022-06-05 00:00:00 +0800
 categories: [JS, Base]
 tags: [event-loop]

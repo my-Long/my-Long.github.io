@@ -1,5 +1,6 @@
 ---
-title: Why do we need virtual dom?
+title: "Why Virtual DOM Exists"
+description: "The problem virtual DOM solves, how the diffing algorithm works, and why it doesn't always mean better performance."
 date: 2022-05-30 00:00:00 +0800
 categories: [JS, Base]
 tags: [vue, react]

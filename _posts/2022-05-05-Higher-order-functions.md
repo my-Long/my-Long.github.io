@@ -1,5 +1,6 @@
 ---
-title: 高阶函数（HOF）
+title: "Higher-Order Functions in JavaScript"
+description: "What higher-order functions are, how map, filter, and reduce work under the hood, and how to write your own."
 date: 2022-05-05 00:00:00 +0800
 categories: [JS, Base]
 tags: [hof]

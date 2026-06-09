@@ -1,5 +1,6 @@
 ---
-title: "webpack optimization"
+title: "Webpack Build Optimization"
+description: "Practical techniques to reduce webpack bundle size and speed up builds: code splitting, tree shaking, and caching strategies."
 date: 2022-07-18 00:00:00 +0800
 categories: [JS, Engineering]
 tags: [optimization]

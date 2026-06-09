@@ -1,5 +1,6 @@
 ---
-title: "debounce and throttle"
+title: "Debounce vs Throttle"
+description: "The difference between debounce and throttle, when to use each, and how to implement them from scratch."
 date: 2022-08-01 00:00:00 +0800
 categories: [JS, Base]
 tags: [debounce, throttle]
