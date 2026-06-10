@@ -10,25 +10,25 @@ image:
 pin: true
 ---
 
-> 一言难尽！！！ 有一种很常见的效果，即一部分是「时间轴」，另一部分是「内容区」，他们之间相互控制。这种效果也常常出现在「tab」切换中。
+> 一言难尽。研究了好多天，走了好几条弯路，最后靠一个「意外发现」解决的。
 
-# 思考 🧐
+有一种很常见的效果：上面是「时间轴」，下面是「内容区」，两者联动——点击时间轴某一年，内容区跟着跳；拖动内容区，时间轴也跟着走。这种效果在「tab 切换」里也很常见。
 
-首先就是想到了老插件 [Swiper](https://www.swiperjs.net/swiper-doc)。原先我脑子里还没有「双向控制」的画面，最初的思路是 ———— 时间轴使用「swiper」，而内容区使用普通的元素，通过「激活项」切换内容。
+产品给了我参考图的时候，我第一反应是：这不就是老插件 [Swiper](https://www.swiperjs.net/swiper-doc) 吗？
 
-看到了产品给的例子，慢慢发现不是这么简单。。。 不是单纯的内容切换，不是一个切换后另一个再切换，不是设置 activeIndex，是「极致」的同步。 👋 因此在文档里踏上了探索之路。。。。。。
+# 开始想错了
 
-# 目标 🎯
+最初的思路是：时间轴用 Swiper，内容区用普通元素，监听时间轴的 `slideNextTransitionStart`，在回调里手动切换内容区的「激活项」。
 
-点击 「时间轴」的项、拖动、左右按钮和拖动时，「内容区」则同步滚动；拖动「内容区」，则「时间轴」也同步滚动。
+然后我看了产品给的参考视频，发现情况不是这样。
 
-<video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/swiper-demo.mp4" controls autoplay muted loop width="800"></video>
+不是「先切换时间轴，再触发内容区切换」那种有先后感的联动，而是两边**同时**在移动。拖动任意一边，另一边实时跟随——那种丝滑程度，让你感觉它们本来就是一个整体。
 
-在探索过程中，走了好多「弯路」，如下面的
+于是我去文档里开始探索。
 
-# 设置活动项 ❌
+# 第一条弯路：监听回调手动切换
 
-思路是在「时间轴」切换后，通过 `slideNextTransitionStart` 回调来设置「内容区」的活动项。
+既然要「一边切换，另一边跟上」，最直接的想法就是各自监听对方的回调，然后调用 `slideToLoop` 切过去：
 
 ```js
 const initSwiper = () => {
@@ -58,29 +58,23 @@ const initSwiper = () => {
 };
 ```
 
-这种方式确实能实现内容的切换，但是有个弊端和瑕疵
+切换确实能做到，但问题藏在 `loop` 模式里。在循环模式下，`slideToLoop` 会寻找「最近的下标」——所以当你从 2025 走到 2015 时，它不会往前继续走，而是往回倒退，找到前面那个复制出来的 2015。这种交互体验很糟糕，感官上就是「走错方向了」。
 
-- 弊端
+两边各自互相监听还有另一个问题：循环引用，以及先后顺序导致的不同步感。这和我想要的「实时跟随」差太远了。
 
-  在 `loop` 模式下，`slideToLoop` 会寻找最近的「下标」，即当到达源数组的最后一项时（2025），下一步要进入 2015，此时「内容区」不会往下走进入 2015，而是会往后走，回到前面的 2015。这种交互体验上并不友好，当然有「邪修」的做法，就想**苹果的时钟**一样，做个假的循环，复制多份数据数据 🙊
+# 第二条弯路：手动同步 translate
 
-- 瑕疵
+既然回调切换太粗糙，那干脆监听位移，调用 `setTranslate` 手动同步？
 
-  内容区也要监听 `slideNextTransitionStart` 设置 「时间轴」的活动项，因此就进入了循环引用、数据不同步等问题，另外这是自身切换后，再让另一个切换，即有先后顺序，并不是期望的同步。
+实操下来，普通情况勉强能做，但只要涉及到 loop 的边界——比如从 2024 滑到 2025 再到循环回来的 2015——就彻底乱了。放弃。
 
-# 设置位移 ❌
+# 第三条弯路：Controller
 
-通过监听自身的位移，然后使用方法如 `setTranslate` 设置对方的位移等，在实操过程过，普通项之间还基本能实现，但是对于「循环」时，如【2024】-> 【2025】-> 【2015】，则是实现不了。
-
-# 双向控制 ❌
-
-查阅文档，发现 [双向控制](https://www.swiperjs.net/swiper-doc/controller.html) 这个功能很满足要求，也是进行了试验。
+文档里有个叫 [Controller](https://www.swiperjs.net/swiper-doc/controller.html) 的功能，看起来就是为「双向控制」设计的，两个实例互相 `.controller.control` 指向对方：
 
 ```js
 const initSwiper = () => {
   if (!cardSwiperRef.current) return;
-  const w = cardSwiperRef.current.clientWidth;
-  const x = -w * 2;
   cardSwiperInstance.current = new Swiper(cardSwiperRef.current, {
     modules: [Controller],
     slidesPerView: 1,
@@ -108,39 +102,38 @@ const initSwiper = () => {
 };
 ```
 
-发现当两个 `swiper` 的 `slidesPerView` 不相等的情况下，虽然能互相控制，但是「活动项」并不同步。文档中说明了 `by` 属性，明明是默认 `slide` ，即自身切换一项，被控制方也切换一项，但是实际就是不同步。
+互相控制是实现了，但「激活项」不同步。两边的 `slidesPerView` 不一样，一个是 `1`，一个是 `5`，虽然文档里说默认的 `by: 'slide'` 是「自身切换一项，被控制方也切换一项」，但实际效果就是不同步。反复试了几次，我接受了这个现实。
 
-# 缩略图 ❌
+# 第四条弯路：缩略图（Thumbs）
 
-再往下查文档，双向控制的例子是 **一对一**，那**多对一**的模式则是使用 [缩略图](https://www.swiperjs.net/swiper-doc/thumbs.html)，官网也是推荐使用这种模式。
+再往下翻文档，发现 [Thumbs](https://www.swiperjs.net/swiper-doc/thumbs.html) 功能，官方明确推荐用于「时间轴 + 内容区」这类多对一场景。
 
-但是在观察例子和实操过程中，发现这种方式并不是我所需要的。缩略图强调的是「激活项」同步，在点击缩略图时，缩略图并不会移动，拖动内容区时，缩略图也不会移动。同时拖动缩略图时，也不会激活某一项。
+用下来才发现不是我想要的。Thumbs 的逻辑是「激活项同步」：点击缩略图，内容区跳过去——但缩略图自己不会滚动。拖动内容区时，缩略图同样不动。这和那种「两边实时跟随」的效果完全是两回事。
 
-# 抓耳挠腮 ❓❓
+# 好几天下来，毫无头绪
 
-说实话，我已经研究了好多天了，毫无头绪，上面几种是最突出的方式，另外还有其他瑕疵。
+此刻我的状态大概就是标题说的「抓耳挠腮」。上面这几种是最有代表性的，但踩到的坑还不止这些：
 
-- `slidesPerView:7`时，原数据过少导致无法下一步；
-- 开启「居中」时，左边或者右边空白等;
-
-还有一些邪修做法，如使用最普通的模式，「时间轴」不居中，而内容区也是普通的，但是数据的顺序不同。
+- `slidesPerView: 7` 时，原数据条数太少导致无法继续切换；
+- 开启居中后，左右两边出现空白；
+- 还有一些「邪修」方案——比如时间轴不居中，内容区也用普通模式，但通过把数据顺序错开让它们在视觉上「看起来」是居中的：
 
 ```js
 const list1 = ["2018", "2019", "2020", "2021", "2022", "2023", "2024"];
 const list2 = ["2020", "2021", "2022", "2023", "2024", "2018", "2019"];
 ```
 
-在视图上让他们看起来是居中的，但是时间轴的激活项还是在左边第一个，但是弊端也多，需要做个假的激活项，让中间项高亮，另外第一个无法点击，点击其他的项无法滚动到中间等等。。。
+弊端也很明显：第一项无法点击，点击其他项也无法正确滚动到中间，还要做假的高亮……越补越多，越多越乱。
 
-😫😫😫 难道就到此为止了吗？？？？？
+# 最后靠一个「意外发现」解决
 
-# 最后的方案 ✅
+还是回到 Controller 方案，但这次发现了两个之前没注意到的属性：`slidesOffsetBefore` 和 `slidesOffsetAfter`，[预设偏移量](https://www.swiperjs.net/swiper-doc/slides-offset-before.html)。
 
-还是使用 `Controller` 这个模式，依然遵循 `slidesPerView` 相同的原则，不过有两个属性至关重要： `slidesOffsetBefore` 和 `slidesOffsetBefore`，[设定预设偏移量](https://www.swiperjs.net/swiper-doc/slides-offset-before.html)。
+> 说实话是不小心看到的。
 
-> 这是我不小心发现的
+核心思路是：**让两边的 `slidesPerView` 保持一致**，然后对内容区使用偏移量，把多余的项「挤出」可视区域，只让中间一项可见。
 
-一样的结构，使用「居中」，对内容区使用偏移量的效果
+先验证偏移量能达到这个效果：
 
 ```js
 const initSwiper = () => {
@@ -152,8 +145,33 @@ const initSwiper = () => {
     grabCursor: true,
     centeredSlides: true,
     loop: true,
-    slidesOffsetBefore: 100, // 偏移量
-    slidesOffsetAfter: 100, // 偏移量
+    slidesOffsetBefore: 100,
+    slidesOffsetAfter: 100,
+  });
+  // ...
+};
+```
+
+![swiper-demo.png](/images/swiper-demo.png){: .shadow .rounded-10 w='884' h='412' }
+
+如果偏移量足够大，大到把两侧的内容都挤出去，就只剩中间一项可见了。
+
+`slidesPerView` 是 `5`，中间那项两侧各有 `2` 张，所以把两边各偏移 **2 个 Swiper 容器宽度**就够了：
+
+```js
+const initSwiper = () => {
+  if (!cardSwiperRef.current) return;
+  const w = cardSwiperRef.current.clientWidth;
+  const x = -w * 2;
+  cardSwiperInstance.current = new Swiper(cardSwiperRef.current, {
+    modules: [Controller],
+    slidesPerView: 5,
+    spaceBetween: 10,
+    grabCursor: true,
+    centeredSlides: true,
+    loop: true,
+    slidesOffsetBefore: x,
+    slidesOffsetAfter: x,
   });
   if (!dateSwiperRef.current) return;
   dateSwiperInstance.current = new Swiper(dateSwiperRef.current, {
@@ -175,33 +193,8 @@ const initSwiper = () => {
 };
 ```
 
-![swiper-demo.png](/images/swiper-demo.png){: .shadow .rounded-10 w='884' h='412' }
-
-那如果偏移量足够大，把两边的内容都「挤走」，只留下中间的一项呢？？
-
-通过调试后发现，可视数量是 `5` 张，两边的张数是 `2`，而当中间只有一张时（整个 swiper 的宽度），则需要偏移 **2 个 swiper 的宽度**。
-
-```js
-const initSwiper = () => {
-  if (!cardSwiperRef.current) return;
-  const w = cardSwiperRef.current.clientWidth; // 一个内容区的宽度
-  const x = -w * 2; // 偏移量
-  cardSwiperInstance.current = new Swiper(cardSwiperRef.current, {
-    modules: [Controller],
-    slidesPerView: 5,
-    spaceBetween: 10,
-    grabCursor: true,
-    centeredSlides: true,
-    loop: true,
-    slidesOffsetBefore: x,
-    slidesOffsetAfter: x,
-  });
-  // ...其他代码
-};
-```
-
 <video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/swiper-demo1.mp4" controls autoplay muted loop width="800"></video>
 
-> 说实话，这也算是「邪修」做法了，但至少能很好地实现需求。我查过很多社区，包括ai等，都找不到「官方正统」的做法...
->
-> 那这种方式，不仅仅是在「时间轴」上，在一些「tab」切换内容区的需求上，也是能很好适用的。
+这也算是一种「邪修」做法，我查过不少社区帖子和 AI 的回答，都没找到什么「官方正统」的路子。但至少它能很好地实现需求，Loop 边界也没问题，同步也是真正的实时同步。
+
+值得一提的是，这种方案不只适用于「时间轴」，凡是「tab 切换 + 内容区跟随」的场景，都能套用同样的思路。
