@@ -6,51 +6,25 @@ categories: [MiniApp]
 tags: [uniapp, ai]
 ---
 
-> [前端部分的交互算是完成了](https://my-long.github.io/2025/11/29/miniprogram-ai2/)，但总差点意思，没有真正的接口返回数据，还是模拟的不到位....😑
+打字机效果跑得挺好，消息也能发出去，但每次测试都是假数据在那里自演自答——[前端部分的交互](https://my-long.github.io/2025/11/29/miniprogram-ai2/)看起来像那么回事，心里清楚差得远。
 
-## 一、前言
+想接真实的大模型。先想到调公司内部的接口，但要登录拿 `appName` 和 `sessionId`，麻烦，算了。然后在各大社区转了一圈，好多都要付费，跳过。`Gemini` 免费，文档也齐全，试了一下能拿到数据，但跑起来不稳定，放弃。最后选了 [科大讯飞的 Spark Lite](https://console.xfyun.cn/services/cbm)——实名认证后免费调用，token 无限量。说是大模型，更像个检索机器人，不过接口能跑通就够了。
 
-我也想接入下大模型！！！ 本来想偷偷调用公司的大模型接口的，但是需要登陆获取 `appName` 和 `sessionId`，有点小麻烦，所以还是在各大社区光了一大圈....
+## 接入讯飞：用 readline 处理流式数据
 
-👀 好多家都是需要付费的（那就不再考虑之内），注意到 [`gemini`](https://ai.google.dev/gemini-api/docs/quickstart?hl=zh-cn) 可以免费调用，尝试了一下，能拿到数据，但是不太稳定，而且用法也不太直观，遂放弃...
-
-后面决定选择了 ———— [科大讯飞](https://console.xfyun.cn/services/cbm)。`Spark Lite` 通过实名认证后，可以免费调用（无限量 token），不过没那么「智能」，更像个你问我答的「检索」机器人，不过这也够了。
-
-## 二、接入科大讯飞
-
-### 1. 准备
-
-在 [科大讯飞控制台](https://console.xfyun.cn/services/cbm) 中，创建应用，并获取 `APIPassword`。
+在 [控制台](https://console.xfyun.cn/services/cbm) 创建应用，拿到 `APIPassword`：
 
 ![keda.png](/images/keda.png){: .shadow .rounded-10 w='884' h='412' }
 
-### 2. 环境依赖
+依赖很简单：`node-fetch` 发请求，`readline` 处理数据流，`dotenv` 读环境变量。环境变量放 `.env`：
 
-需要准备以下依赖：
+```js
+URL=https://spark-api-open.xf-yun.com/v1/chat/completions
+APIKEY= 你的 APIPassword
+PORT=8080
+```
 
-- `node-fetch`：用于发送 HTTP 请求，当然使用原生的 `fetch` 也可以
-- `readline`：用于处理接口返回的数据流
-- `dotenv`：用于加载环境变量
-
-需要以下文件：
-
-- `.env`：存放环境变量
-
-  ```js
-  URL=https://spark-api-open.xf-yun.com/v1/chat/completions
-
-  APIKEY= 你的 APIPassword
-
-  PORT=8080
-
-  ```
-
-- data/messages.json：存放聊天记录
-- chat.js：各种接口函数
-
-### 3. 实现流式数据接口
-
-在 `chat.js` 中，编写以下代码：
+用 `node-fetch` 而不是原生 `fetch`，是因为它返回的 `response.body` 是 Node.js 原生的 `Readable`，可以直接丢给 `readline` 按行解析——处理 SSE 数据流就靠这一点：
 
 ```js
 import fetch from "node-fetch";
@@ -61,13 +35,13 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env" });
 
-const KEY = process.env.GEMINI_API_KEY; // 替换为你的有效Key
+const KEY = process.env.GEMINI_API_KEY;
 const URL = process.env.URL;
 
 export const chatStream = async (messages, res) => {
   console.log(messages);
   const body = {
-    model: "lite", // 示例，可换 spark-v3、spark-max、deepseek-r1 等
+    model: "lite",
     user: "",
     messages: [messages],
     stream: true,
@@ -82,7 +56,7 @@ export const chatStream = async (messages, res) => {
   });
 
   const rl = readline.createInterface({
-    input: response.body, // Node.js Readable
+    input: response.body,
     crlfDelay: Infinity,
   });
   rl.on("line", (line) => {
@@ -102,13 +76,13 @@ export const chatStream = async (messages, res) => {
     }
   });
   rl.on("close", () => {
-    console.log("✅ 流处理完成");
+    console.log("流处理完成");
     res.end();
   });
 };
 ```
 
-拿到的 `data.choices[0].delta` 是这样的：
+每次 `rl.on("line")` 触发，拿到的 `data.choices[0].delta` 长这样：
 
 ```js
 { role: 'user', content: '你好啊' }
@@ -118,14 +92,11 @@ export const chatStream = async (messages, res) => {
 { role: 'assistant', content: '吗？' }
 ```
 
-> 以上使用的是 `note-fetch`，所以使用 `readline` 来处理数据流。
-
-在 `index.js` 中，引入 `chatStream` 函数：
+在 `index.js` 里挂路由，把 `messages` 和 `res` 传给 `chatStream` 就行：
 
 ```js
 import { chatStream } from "./chat.js";
 
-// 流式聊天
 app.post("/api/chat/stream", async (req, res) => {
   try {
     const { messages } = req.body;
@@ -139,17 +110,15 @@ app.post("/api/chat/stream", async (req, res) => {
 });
 ```
 
-## 三、优化聊天交互
+## 顺手把数据结构对齐了
 
-包括打断回复、保存记录及键盘等一些优化。
+接入真实接口的同时，把之前的数据格式也改了。原来图方便用的是 `{role:'sys', delta:'你好'}`，跟主流 AI 格式差太远，统一改成 `{role:'assistant', content:'你好'}`。
 
-### 1. 数据格式
-
-之前的数据结构是：`{role:'sys',delta:'你好'}`，为了对标主流的 AI 的数据结构，改成：`{role:'assistant',content:'你好'}`，注意把项目中涉及到该格式的，都全部替换，如`ai`聊天页面中的：
+消息合并逻辑对应调整，核心是判断最新一条消息的 `role`——相同就追加 `content`，不同就新增一条：
 
 ```js
 const onHandleChunk = (chunk) => {
-  const { content, role = "assistant" } = chunk; // 设置默认 role 为 "assistant"
+  const { content, role = "assistant" } = chunk;
   if (typeof content === "string" && !content?.trim()) return;
   const last = chatList.value[0];
   if (last && last.role === role) {
@@ -163,14 +132,9 @@ const onHandleChunk = (chunk) => {
 };
 ```
 
-> 项目源代码中已全部替换。
-
-### 2.获取聊天记录
-
-在小程序端不做处理，依然是传统的传入分页的参数，如：
+聊天记录的读取用分页，小程序端传 `page` 和 `pageSize`，server 端读 `messages.json` 做切片：
 
 ```js
-// 获取聊天记录
 const result = await getMessage({
   page: pagination.value.page,
   pageSize: pagination.value.pageSize,
@@ -178,29 +142,16 @@ const result = await getMessage({
 });
 ```
 
-在 `server` 端，借用 `messages.json` 存储数据。
-
 ```js
 // chat.js
-
-// 引入必要的模块
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env" });
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const filePath = path.join(__dirname, "data", "messages.json");
-
-// 其他代码...
 
 export const getMessage = async (params, res) => {
   const { page, pageSize } = params;
   const data = JSON.parse(fs.readFileSync(filePath, "utf8")).reverse();
   const total = data.length;
-
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const list = data.slice(startIndex, endIndex);
@@ -208,15 +159,11 @@ export const getMessage = async (params, res) => {
 };
 ```
 
-### 3. 打断回复
+## 「打断」比想象中麻烦一点
 
-说到保存记录，就要说到「打断回复」。上一节说到 [保存记录与打断时机](https://my-long.github.io/2025/11/29/miniprogram-ai2/#%E5%9B%9B%E7%A6%81%E7%94%A8%E5%8F%91%E9%80%81%E6%89%93%E6%96%AD)，这里明确了要既要「打断打字机回复」，又要「打断接口回复」，另要把当前实际显示的内容保存起来。
+[上一篇](https://my-long.github.io/2025/11/29/miniprogram-ai2/#%E5%9B%9B%E7%A6%81%E7%94%A8%E5%8F%91%E9%80%81%E6%89%93%E6%96%AD)说要同时打断两件事：打字机动画和接口请求。打断接口相对简单，调一个「中止接口」就行，后端处理。
 
-「打断接口回复」比较简单，就是调用一个「打断的接口」，后端处理就行。
-
-现在要说的是打断打字机回复与保存记录。
-
-上一篇说到， 在 `ai-keyboard` 组件中，当 `is-replying` 变化为 `true` 时，按钮切换为「打断」状态。
+打断打字机才是真正要想清楚的地方。在 `ai-keyboard` 组件里，用户点「打断」时只抛出 `stop` 事件，不做其他处理：
 
 ```js
 const emit = defineEmits(["send", "stop"]);
@@ -226,10 +173,7 @@ const sendMessage = () => {
     return;
   }
   if (!inputValue.value.trim()) {
-    uni.showToast({
-      title: "请输入内容",
-      icon: "none",
-    });
+    uni.showToast({ title: "请输入内容", icon: "none" });
     return;
   }
   emit("send", inputValue.value);
@@ -237,10 +181,9 @@ const sendMessage = () => {
 };
 ```
 
-打断时，不执行发送逻辑，但是把「打断」的状态传递给父组件，在父组件中处理相应逻辑。
+父组件收到 `stop`，只把 `isStop` 标记为 `true`，**不能直接改 `isReplying`**：
 
 ```js
-// 父组件
 const isStop = ref(false);
 const onStop = () => {
   isStop.value = true;
@@ -250,28 +193,27 @@ const onStop = () => {
 requestTask = wx.request({
   // 其他代码...
   complete: () => {
-    console.log("⭕ 请求结束");
+    console.log("请求结束");
     currentReceivingId.value = null;
-    isReplying.value = false; //  ✅ 在这里修改
+    isReplying.value = false; // ✅ 在这里修改
   },
 });
 ```
 
-> 注意：不能直接改变回复状态，因为这时候只是说 `我打断了`，但实际上接口还在回复，如果这里修改了状态，那发送按钮就又可以发送了，就变成上一条消息还在回复，下一条消息又发送了。 打断回复的接口应该在这里调用，但还是不能直接改变状态，因为接口响应有延迟，所以应该在 `requestTask`的 `complate` 里修改。
+原因是：点了「打断」只是说「我不想看了」，但接口还在跑。如果这时候直接把 `isReplying` 改成 `false`，发送按钮就恢复可用，用户能发新消息——上一条还没结束，下一条又来了，状态就乱掉了。打断接口的响应也有延迟，所以等 `requestTask` 的 `complete` 回调才是最合适的时机。
 
-`ai-sys-text` 组件中，接收 `isStop`，然后终止打字，并抛出回调。
+`ai-sys-text` 组件收到 `isStop` 后，打字机直接退出并把当前内容抛出去：
 
 ```js
 const emits = defineEmits(["stopSuccess"]);
 const typingText = (text) => {
   if (!text) return;
-  if (props.isStop) return; // 打断时，不执行打字机
+  if (props.isStop) return;
 
   clearTimeout(timer);
   const step = () => {
-    // 打断时，直接抛出回调
     if (props.isStop) {
-      emits("stopSuccess", content.value);
+      emits("stopSuccess", content.value); // 打断时，把当前已渲染内容抛出
       return;
     }
     isReplying.value = true;
@@ -281,11 +223,10 @@ const typingText = (text) => {
       htmlContent.value = marked(completedContent);
       timer = setTimeout(step, 30);
     } else {
-      // 打字完成后，标记不再需要打字效果，并抛出回调
       if (!props.isReceiving) {
         needTypingEffect.value = false;
         isReplying.value = false;
-        emits("stopSuccess", content.value);
+        emits("stopSuccess", content.value); // 打字完成，也抛出内容
       }
     }
   };
@@ -293,24 +234,14 @@ const typingText = (text) => {
 };
 ```
 
-通过以上处理，当「打断」时，不再接收父组件传入的内容，打字机函数也不执行，并抛出回调。打字机结束以后，也抛出回调。因此能及时的拿到当前已渲染的内容。
-
-### 4. 保存记录
-
-保存内容包括用户发送的内容和系统回复的内容。
-
-在 `sendMessage` 函数中、在 `stopSuccess` 回调中，调用 `saveMessage` 函数，保存聊天内容。
+无论是打断还是打字完成，`stopSuccess` 都会触发。父组件在这里保存记录：
 
 ```js
 const sendMessage = (message) => {
   isReplying.value = true;
   isWaiting.value = true;
   chatMessage.value = message;
-  const obj = {
-    id: Date.now(),
-    role: "user",
-    content: message,
-  };
+  const obj = { id: Date.now(), role: "user", content: message };
   addMessage(obj);
   saveMessage(obj); // 保存用户发送的内容
   onFetch();
@@ -322,17 +253,15 @@ const onStopSuccess = (text) => {
 };
 ```
 
-## 四、键盘上移
+## 键盘上移这个坑
 
 ![page.png](/images/page.png){: .shadow .rounded-10 w='884' h='412' .w-50 .right}
-在 `input` 组件中，[默认上推页面](https://uniapp.dcloud.net.cn/component/input.html)，`adjust-position` 为 `true`。如果为 `false`，键盘又会盖住输入框。
 
+`input` 组件默认 `adjust-position` 为 `true`，键盘弹起时会把整个页面往上推——推出容器，布局就乱了。改成 `false` 呢，键盘直接盖住输入框，也不行。
 
-键盘上推会把页面推出容器，怎么调都不方便。通过观察「期望」效果，我们可以另辟蹊径：
+换个思路：既然键盘会盖住页面底部，那就给 `ai-keyboard` 组件动态加 `padding-bottom`，让内容主动给键盘让位。
 
-把 `adjust-position` 设置为 `false`，禁止键盘上推页面，实际就是「键盘」定位在容器底部，盖住了页面的部分内容，那我们可以让`ai-keybord` 组件添加一个 `padding-bottm`，把键盘上移，留一部分空白给键盘，这样就完美解决了。
-
-添加 `@keyboardheightchange`，监听键盘的高度变化。
+监听 `@keyboardheightchange` 拿高度，减掉 `safe-area-inset-bottom` 避免 iPhone 底部双重留白：
 
 ```js
 const keyboardHeight = ref("");
@@ -345,6 +274,8 @@ const onKeyboardheightchange = (e) => {
   }
 };
 ```
+
+组件模板里把 `padding-bottom` 绑上去，`adjust-position` 设为 `false`：
 
 ```vue
 <template>
@@ -369,10 +300,6 @@ const onKeyboardheightchange = (e) => {
 </template>
 ```
 
-## 五、效果
-
-完善了「打断」接口，可见[源代码](https://github.com/my-Long/miniProgram-ai)。
-
-效果如下：
+打断接口的完整实现见[源代码](https://github.com/my-Long/miniProgram-ai)，效果如下：
 
 <video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/effect.mp4" controls autoplay muted loop width="300"></video>

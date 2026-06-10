@@ -6,23 +6,29 @@ categories: [MiniApp]
 tags: [uniapp,ai]
 ---
 
-> 之前在开发小程序的时候，写了篇笔记 [uniapp - AI 聊天页面布局的实现](https://juejin.cn/post/7527869985344028672)，参杂了些许业务，也说的不全，现在稍微有空了，重新梳理了一些这种聊天方式的心得。
+做 AI 聊天页面时，第一个绕不开的问题是「消息怎么往上推」。
 
-## 一、实现功能&&框架
+最直观的想法是：每次新消息来了，用 `scroll-top` 滚到底部。我也是这么试的，用户消息能正常上推，但 AI 消息不行——尤其是结合打字机效果和 markdown 渲染的时候，会把部分内容「吃掉」，推上去不自然。`scroll-into-view` 也试了，效果也差。
 
-这是在小程序里实现的，结合之前的经验，在数据请求上，我选择了 `uni.request` 这个 API，并启用 `enableChunked: true,`。为了方便数据请求，启动了本地 nodeJs 服务，对于「历史记录」，使用本地缓存。
+然后是历史消息加载：上拉到顶触发分页，新数据插入数组，页面会突变——第一页内容直接被往下压。「记录当前位置再滚回去」这个思路在实操里怎么做都有一个肉眼可见的闪动，衔接不流畅。还有初始化进页面的时候，用 `scroll-top` 定位到最后一条，会有一段短暂的滚动动画，一进来就能感觉到页面在动。
 
-这是一个 uniapp 的简单项目，为了使页面美观等，引入了一些「自定义组件」，如头部、底部输入框等。
+这三个问题加在一起，「靠滚动定位」这套思路在这个场景下走不通。
 
-从总体上来看，要实现的功能就是 ai 聊天，大致有以下几个点：
+后来换了个思路：**把整个聊天容器翻转（`rotateX(180deg)`）**。
 
-- 发送消息的时候，消息内容 **自定向上推** 。
-- AI 回复的消息是流式输出，并内容也是向上推。
-- 历史记录加载的时候不卡顿，能衔接流畅。
+容器翻转之后，视觉上「底部」变成了渲染上的「顶部」，新消息 `unshift` 到数组头部，自然就出现在页面底部，不需要任何滚动处理。上拉加载历史消息时，`push` 到数组尾部，在翻转后的视图里刚好是往上插入，内容从哪条延续就从哪里自然衔接，不会突变。初始化时也不需要定位，第一页数据渲染出来直接就在底部。
 
-## 二、项目结构
+| 问题 | 滚动方式 | 翻转方式 |
+| ------ | ----------------------------- | ----------------- |
+| 上推 | 需要 id 记录位置再滚动，打字机场景容易吃内容 | 不需要处理，自然上推 |
+| 历史加载 | 插入数据会突变，闪动无法消除 | 自然衔接 |
+| 初始化 | 有短暂滚动动画 | 直接出现在底部 |
 
-我这是新的项目，简单介绍项目结构，如下：
+代价就是：数组操作全改成 `unshift`，历史消息加载时从 `push` 追加到末尾。仅此而已。
+
+## 项目结构
+
+这是一个 uniapp 项目，主要用到以下几个自定义组件：
 
 ```
 ├───components
@@ -33,28 +39,17 @@ tags: [uniapp,ai]
 ├───pages
 │   ├───ai // 聊天页面
 │   └───index
-├───store // 状态管理
-├───hooks // 状态管理
-├───serve // 本地服务
+├───store
+├───hooks
+├───server // 本地 node 服务，模拟后端
 ├───utils
-├───App.vue
-├───main.js
-├───manifest.json
-├───pages.json
-└───uni.scss
 ```
 
-其中 `ai-navbar` 是自定义头部组件，其实用处不大，而 `hooks` 里目前只有一个功能，就是计算头部安全区的距离，用处也不大。`serve` 是为了实现功能而模拟的后端服务，`npm start` 运行在 `http://localhost:3000` 的服务，真实开发时，并不需要这个模块。
+`server` 是为了跑通流程临时起的本地 Node.js 服务，真实开发时不需要这个模块。数据请求用 `uni.request`，启用 `enableChunked: true`，历史记录用本地缓存。
 
-## 三、功能实现
+## 页面布局
 
-整体上包括布局和逻辑两个部分。
-
-### 1. 页面布局
-
-其实就是一个简单的布局，头部、聊天内容区域、底部输入框。
-
-核心还是 `chat-container` 这个聊天容器，对聊天内容进行了反转，然后包含了 `scroll-view`,用于滚动、加载。根据条件，分别渲染 `ai-user-text` 和 `ai-sys-text` 两个消息内容组件。
+整体是头部、聊天内容区、底部输入框三段式。核心是 `chat-container` 里的 `scroll-view`——容器、`scroll-view`、`chat-item` 都做了 `rotateX(180deg)` 翻转，这样子元素的内容显示方向才能正确：
 
 ```vue
 <template>
@@ -146,35 +141,19 @@ tags: [uniapp,ai]
 </style>
 ```
 
-TIP:为什么要反转聊天内容？
-
-> 容器的默认行为是 1. 内容会从上面自然地向下输出 2.上拉加载内容时，内容能流畅的衔接起来。
-
-> 这是由我的需求是 1. 消息向上推出 2. 加载记录时，消息从上面能流畅衔接。 基于此，我才用反转容器的方法来实现。
-
-> 不用这种方法的弊端，后面讲。
-
-现在布局页面如下：
+布局完成后的效果：
 
 ![post-ai-1.png](/images/post-ai-1.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
 
-### 2. 发送&&接收消息
+## 发送消息和接收流式数据
 
-我简单的分为发送消息、接收消息、拼接消息三个部分。 发送消息时，发送消息到后端，并将消息插入到 `chatList` 中。 接收消息时，从后端接收流式数据，并将数据拼接起来，插入到 `chatList` 中。
-
-#### (1). 发送消息
-
-```vue
-<ai-keyboard @send="sendMessage" />
-```
+发送时把用户消息 `unshift` 到数组头部（翻转后等于追加到「底部」），然后发请求：
 
 ```js
-// 发送消息时，将消息插入到 chatList 中
 const addMessage = (messageItem) => {
-  chatList.value.unshift(messageItem); // 因为反转了聊天内容，所以要插入到数组的开头
+  chatList.value.unshift(messageItem);
 };
 
-// 发送消息
 const sendMessage = (message) => {
   chatMessage.value = message;
   const obj = {
@@ -182,26 +161,18 @@ const sendMessage = (message) => {
     role: "user",
     delta: message,
   };
-  addMessage(obj); // 插入用户消息
-  onFetch(); // 发送请求
+  addMessage(obj);
+  onFetch();
 };
 ```
 
-#### (2). 接收消息
-
-其实这一块是很简单的，这个只是请求数据而已，有些人把「数据请求」和「数据处理」封装成一个方法，完全是把业务逻辑耦合在一起了，对于我来说，不太喜欢这种方式。 函数编程，我更喜欢抽离各种模块...
-
-在微信小程序中，不支持 `sse` ,但是提供了 `enableChunked: true`, [(详见文档)](https://uniapp.dcloud.net.cn/api/request/request.html#requesttask-values)。
+微信小程序不支持 SSE，但提供了 `enableChunked: true`，[详见文档](https://uniapp.dcloud.net.cn/api/request/request.html#requesttask-values)。先给 AI 回复创建一个空的占位消息，再通过 `onChunkReceived` 监听流式数据填进来。`currentReceivingId` 标识当前正在接收的那条消息，打字机组件靠它区分「需要逐字输出」和「历史消息直接显示」：
 
 ```js
 const onFetch = () => {
-  console.log("开始请求，API地址:", apiUrl);
-
-  // 创建一个唯一 ID 用于标识这次对话
   const messageId = Date.now();
   currentReceivingId.value = messageId;
 
-  // 先创建一个空的 AI 消息占位
   const aiMessage = {
     id: messageId,
     role: "ai",
@@ -212,7 +183,7 @@ const onFetch = () => {
   const requestTask = wx.request({
     url: `${apiUrl}/chat`,
     method: "POST",
-    enableChunked: true, // 启用分块传输
+    enableChunked: true,
     data: {
       message: chatMessage.value,
     },
@@ -224,69 +195,11 @@ const onFetch = () => {
     },
     complete: () => {
       console.log("⭕ 请求结束");
-      // 请求结束后，清除当前接收状态
-      // 但打字机效果会在组件内部继续完成
       currentReceivingId.value = null;
       saveMessage("chatMessages", chatList.value);
     },
   });
 
-  // 监听数据返回
-  if (requestTask.onChunkReceived) {
-    requestTask.onChunkReceived(async (res) => {
-      console.log("收到分块数据:", res);
-    });
-  }
-};
-```
-
-如上，完全是一个很简单的请求，只做请求处理。
-
-> currentReceivingId.value 是当前正在接收消息的 ID，用于标识当前正在接收的消息, 区分当前消息和历史消息，为「打字机」效果提供判断依据。
-
-#### (3). 拼接消息
-
-这里需要做一些准备，主要是将后端返回的流式数据拼接起来，输出完整的内容。我这里分为两个过程，一是将 `buffer` 转为 `string`, 二是将内容拼接。
-
-涉及到两个方法，`arrayBufferToString` 和 `processor.value.enqueue` 。以前的业务中，AI 那边不能很好的处理流式数据，存在多条数据"合并"在一起的情况，导致前端显示异常，因此封装了 `processor.value.enqueue` 来处理。 AI 返回的数据可能如下：
-
-```json
- // 1. [{...},{...}]
- // 2. {...}
- // 3. {...},{...}
- // 4. {...}{...}
-```
-
-所以，如果你们的 AI 那边能很好的处理流式数据，就不需要封装 `processor.value.enqueue` 了。
-
-> 两个方法，详见源代码
-
-接收到「分块数据」后，就应该处理数据。
-
-```js
-// 注册对象
-const processor = ref(new ChunkProcessor(onHandleChunk));
-
-// 处理分块数据
-const onHandleChunk = (chunk) => {
-  const { delta, role = "ai" } = chunk; // 设置默认 role 为 "ai"
-  if (typeof delta === "string" && !delta?.trim()) return;
-  const last = chatList.value[0];
-  if (last && last.role === role) {
-    last.delta += delta;
-  } else {
-    chatList.value.unshift({
-      delta,
-      role,
-    });
-  }
-  console.log(chatList.value);
-};
-
-const onFetch = () => {
-  // .... 其他代码
-
-  // 监听数据返回
   if (requestTask.onChunkReceived) {
     requestTask.onChunkReceived(async (res) => {
       try {
@@ -300,13 +213,40 @@ const onFetch = () => {
 };
 ```
 
-到这里，整个流程就已经实现了，能发送消息、接收消息，并把消息拼接起来渲染到页面上。
+流式数据到前端后需要拼接处理。实际项目里碰到过多条数据「合并」在一起传来的情况，所以封装了 `ChunkProcessor` 处理。AI 返回的 chunk 可能是这几种格式：
 
-### 3. 打字机效果
+```json
+// 1. [{...},{...}]
+// 2. {...}
+// 3. {...},{...}
+// 4. {...}{...}
+```
 
-#### (1). 打字机效果实现
+如果对接的 AI 能保证格式规范，这层处理可以省掉。拼接好之后，同 `role` 的内容追加到最新一条消息，不同 `role` 则新建一条：
 
-在 `ai-sys-text` 组件中，实现打字机效果。
+```js
+const processor = ref(new ChunkProcessor(onHandleChunk));
+
+const onHandleChunk = (chunk) => {
+  const { delta, role = "ai" } = chunk;
+  if (typeof delta === "string" && !delta?.trim()) return;
+  const last = chatList.value[0];
+  if (last && last.role === role) {
+    last.delta += delta;
+  } else {
+    chatList.value.unshift({
+      delta,
+      role,
+    });
+  }
+};
+```
+
+## 打字机效果
+
+后端直接推内容、前端原样显示，看起来是最省事的做法。但实际跑起来会发现：每条流式数据的字符数不均匀，一次来十几个字，页面上就一块一块地「突现」，很突兀。除非后端能控制每条数据只有一两个字，才不会出现这个效果——一般 AI 接口只做数据转发，不处理这个粒度，所以这条路走不通。
+
+**前端打字**就是我选的方案：拿到拼接好的内容之后，用 `setTimeout` 每隔固定时间输出一个字符。弊端是接口可能已经全部返回完了，但前端还在慢慢「打」，这段时间差需要用 `isReceiving` 区分「正在接收数据」和「接口结束、打字机还在跑」两种状态：
 
 ```js
 <script setup>
@@ -319,24 +259,22 @@ const props = defineProps({
   },
   isReceiving: {
     type: Boolean,
-    default: false, // 是否正在接收中（需要打字效果）
+    default: false,
   },
 });
 
 const content = ref("");
 let timer = null;
 const typingIndex = ref(0);
-const needTypingEffect = ref(false); // 标记是否需要打字效果
+const needTypingEffect = ref(false);
 
 const typingText = (text) => {
   clearTimeout(timer);
-  // 继续从当前位置打字
   const step = () => {
     if (typingIndex.value < text.length) {
       content.value = text.slice(0, ++typingIndex.value);
       timer = setTimeout(step, 30);
     } else {
-      // 打字完成后，标记不再需要打字效果
       needTypingEffect.value = false;
     }
   };
@@ -344,7 +282,6 @@ const typingText = (text) => {
 };
 
 const handlerText = (text) => {
-  // 历史消息直接显示全部内容
   content.value = text;
   typingIndex.value = text.length;
 };
@@ -353,27 +290,22 @@ watch(
   () => props.text,
   (newVal) => {
     if (props.isReceiving || needTypingEffect.value) {
-      // 正在接收中或需要继续打字效果
       typingText(newVal);
     } else {
-      // 历史消息，直接显示
       handlerText(newVal);
     }
   },
   { immediate: true }
 );
 
-// 监听 isReceiving 变化
 watch(
   () => props.isReceiving,
   (newVal, oldVal) => {
-    console.log("isReceiving 变化:", oldVal, "->", newVal);
     if (!newVal && oldVal) {
-      // 从接收中变成接收完成，继续保持打字效果直到完成
+      // 接口结束，但打字机继续跑完
       needTypingEffect.value = true;
       typingText(props.text);
     } else if (newVal && !oldVal) {
-      // 重新开始接收
       needTypingEffect.value = true;
       typingIndex.value = 0;
       typingText(props.text);
@@ -381,7 +313,6 @@ watch(
   }
 );
 
-// 组件卸载时清除定时器
 onBeforeUnmount(() => {
   if (timer) {
     clearTimeout(timer);
@@ -391,80 +322,20 @@ onBeforeUnmount(() => {
 </script>
 ```
 
-对于打字机，目前我有两个观点或者说思路。
-
-- 前端实现
-
-前端拿到拼接的数据后，如上，通过定时器或延时器，制定一个时间间隔，依次显示每个字符，实现打字机效果。不过有个弊端，即这个时间间隔是固定的，那么会出现流式数据已经「请求结束」，触发了 `complate` 方法，但是前端还在「打印」的现象。
-
-- 后端实现
-
-即不处理，后端返回什么，前端直接显示什么。但这种有一种「卡顿」的弊端，如果依次返回的数据是 `你好，`、`这是模拟的`、`数据。`，则在页面上「突现」3 个、5 个、3 个字符，会有一种卡吨的效果。如果能让后端将数据处理成均匀的，即每条流式数据的内容都是差不多且精简的，如只有一到两个字，那才不会出现卡顿的现象。
-
-但是，一般情况下，后端都是调用 AI 模型，只做数据的转发，因此「后端实现」的这种方法，并不太理想。
-
-#### (2). 输出与打字效果预览
+效果如下：
 
 <video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-2.mp4" controls autoplay muted loop width="300"></video>
 
-### 4. 加载历史消息
+## 历史消息加载
 
-使用「页面反转」最重要的一点就是要实现「历史消息」的加载。
+保存时机选在 `complete` 回调里，一来一回都结束之后再保存。前端保存还是后端保存、用户消息是发送时保存还是响应后保存，这些是业务决定的，这里不展开。
 
-因为这里是演示效果，所以我封装了 `mockAPI` 来模拟后端返回数据的过程，包括获取历史消息和保存消息。
-
-#### (1). 保存消息
-
-由于业务和技术的不同，保存消息有不同的方式，这里我简单介绍一下。
-
-比如是由后端进行的，那后端接收到用户发送的消息后，就保存记录，向用户发送消息后，就保存记录，这样就保存了一组 `user/ai` 的消息内容，但就是用户发送失败的消息不回存在记录中。
-
-如果是前端保存，差异也是用户消息这一块，到底是用户一发送消息就调用方法保存记录，还是等待接口响应了再调用方法保存记录。这其实就是业务决定的，这里不搞那么复杂了。
-
-我这里是在 `complate` 方法中保存消息的，即一来一回后才保存消息。
-
-```js
-const onFetch = () => {
-  // ... 其他代码
-  const requestTask = wx.request({
-    url: `${apiUrl}/chat`,
-    method: "POST",
-    enableChunked: true, // 启用分块传输
-    data: {
-      message: chatMessage.value,
-    },
-    success: (res) => {
-      console.log("✅ 请求完成", res);
-    },
-    fail: (err) => {
-      console.error("❌ 请求失败", err);
-    },
-    complete: () => {
-      currentReceivingId.value = null;
-      saveMessage("chatMessages", chatList.value); // 保存消息
-    },
-  });
-
-  // ... 其他代码
-};
-```
-
-> 注意：这里的 `saveMessage` 方法是我封装的一个方法，用于保存消息到本地存储。
-
-#### (2). 加载历史消息
-
-主要是在 「页面初始化」和「手动加载」 时加载历史消息。
+加载分初始化和上拉两种情况。翻转之后，滚动到「顶部」对应的是 `onScrollToLower`，这点要注意：
 
 ```js
 const getMessageList = async (isLoadMore = false) => {
-  // 防止重复加载
   if (loading.value) return;
-
-  // 如果是加载更多，检查是否还有更多数据
-  if (isLoadMore && !pagination.value.hasMore) {
-    console.log("没有更多数据了");
-    return;
-  }
+  if (isLoadMore && !pagination.value.hasMore) return;
 
   try {
     if (isLoadMore) {
@@ -478,23 +349,18 @@ const getMessageList = async (isLoadMore = false) => {
       page: pagination.value.page,
       pageSize: pagination.value.pageSize,
     });
-    console.log("result", result.data);
 
     if (result.code === 200) {
-      // 更新分页信息
       pagination.value.total = result.data.total;
       pagination.value.hasMore = result.data.hasMore;
 
       if (isLoadMore) {
-        // 加载更多：追加到列表末尾
         chatList.value.push(...result.data.list);
       } else {
-        // 初次加载：替换列表
         chatList.value = result.data.list;
       }
     }
   } catch (error) {
-    // 加载失败时回退页码
     if (isLoadMore) {
       pagination.value.page -= 1;
     }
@@ -512,99 +378,25 @@ onLoad(() => {
 });
 ```
 
-> 注意：由于页面翻转了，所以顶部的加载使用 `onScrollToLower` 方法。
-
-> 注意：这里的 `getMessage` 方法是我封装的一个方法，用于从本地存储获取消息。
-
-> 我的数据结构中，是使用 `hasMore` 来判断是否还有更多数据的。
-
-### 5.整体功能预览
-
-其实到这里，AI 聊天的基本功能已经实现完成了，就跟 第一点 说的那样，实现消息上推，历史消息加载，打字机效果。
+基本功能到这里完整了：
 
 <video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-3.mp4" controls autoplay muted loop width="700"></video>
 
-## 四、布局分析
+## 几个值得继续做的地方
 
-在之前的开发中，我也是试错了好几遍，才找到一个比较合适的布局。那为什么使用「翻转」，不使用的弊端是什么？
+**复制消息**是其中难点最多的一个。长按弹出复制按钮，弹窗的定位要处理三种情况：消息被顶部截断时弹窗要在消息内部靠上，消息较短时弹窗要在消息上方或下方，消息较长且点击位置在中间时弹窗要悬在内部。
 
-### 1. 上推
+![post-ai-4.png](/images/post-ai-4.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+_弹窗在消息内部顶部_
 
-第一种想法应该是「滚动」，即一添加消息，就让页面滚动到最底部，可用[`scroll-into-view`](https://uniapp.dcloud.net.cn/component/scroll-view.html)和[`scroll-top`](https://uniapp.dcloud.net.cn/component/scroll-view.html#scroll-top),那在实操过程中发现， `scroll-top` 的值必须是最大的一个动态值，且在用户消息这点是可以实现上推的，但是在 AI 消息这点，会出现「吞消息」的现象，即有部分消息是在聊天容器之外的，尤其是当「打字机」和「md」语法结合时，这种情况异常明显，会有部分内容被吃掉，上推不自然。
+![post-ai-5.png](/images/post-ai-5.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+_弹窗在消息底部_
 
-### 2. 下拉
+![post-ai-6.png](/images/post-ai-6.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+_弹窗在消息内部_
 
-这是历史消息的加载，当上滑到这一页的「最后一条」时，需要加载消息，如果不做处理，直接加载第二页，往数组里插入数据，那这是会「突变」的，第一页的数据直接被下推，所以想法就是「记录」第一页最后一条数据的「位置」，当向数组插入第二页数据时，马上滚动到记录的那个「位置」，这样就不会突变了。
+**禁用发送**：AI 还没回复时禁用发送按钮，否则可能出现多条 AI 消息几乎同时在跑的情况。
 
-基于此逻辑，在实操过程中，突变到那个「位置」时，页面会闪动一下，无论如何我都无法处理这个闪动，所以并不能很流畅地衔接第一页和第二页之间的数据。
+**重新生成**：给最后一条 AI 消息加「重新生成」入口。重新发送的消息不要插入消息数组，也不要写入历史记录；两次生成的内容是都展示还是只展示最新的，需要提前定好。
 
-### 3. 初始化
-
-当进入页面获取第一页历史数据时，使用 `scroll-top` 滚动到最后，会出现一个短暂的滚动现象，给人一种「这是滚动过来」的感觉。
-
-### 4. 总结
-
-综上，有这样的差异：
-
-| 功能   | 普通方式                      | 翻转              |
-| ------ | ----------------------------- | ----------------- |
-| 上推   | ❌ 需要用 id 记录位置，并滚动 | ✅ 不需要做处理   |
-| 下拉   | ❌ 会有突变现象               | ✅ 自然衔接       |
-| 初始化 | ❌ 会有短暂的滚动现象         | ✅ 直接出现在底部 |
-
-所以，多次试验之后，采用 「翻转」 这种方法，需要做处理的地方，仅仅是数据插入的时候，使用 `unshift` 插入到前面。
-
-当然了，我是基于这三种情况，才采用的「翻转」这种方法。有的业务需求是不需要加载历史记录，或者说历史记录保存在本地，只有几条，并需要加载、分页请求，那这种情况下，处理好一点，还是能用「滚动」的方式去实现视图定位的。
-
-### 五、优化
-
-当前只是实现了基本功能，其实要有一些优化。
-
-#### 1. 复制消息
-
-包括用户和 AI 消息的复制，主要是弹出一个框，实现复制功能，难点在于弹窗的「位置」。用户的消息比较少，这里以 AI 的消息为例：
-
-- 消息较长，在顶部(被顶部吃掉一部分)。
-
-  ![post-ai-4.png](/images/post-ai-4.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
-  _弹窗在消息的内部的顶部_
-
-- 消息较短，在顶部
-
-  ![post-ai-5.png](/images/post-ai-5.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
-  _弹窗在消息的底部_
-
-- 消息较长，在中间
-
-  弹窗应该在消息的内部。
-
-  ![post-ai-6.png](/images/post-ai-6.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
-  _弹窗在消息的内部_
-
-- 消息较长，在底部(被底部吃掉一部分)。
-
-  弹窗应该在消息的内部的顶部。
-
-- 消息较短，在底部
-
-  弹窗应该在消息的顶部。
-
-这是根据具体的需求来实现的，当然实际可能不是这样，但肯定会有顶部、中部、底部这三种情况。
-
-#### 2.禁发消息
-
-当发送消息后，ai 还没回复消息时，应该禁用发送按钮，防止重复发送。如果不禁用，可能会出现多条 ai 消息几乎同时回复的情况。
-
-#### 3. 重新发送
-
-有些会给「最后一条」ai 消息添加「重新生成」的功能。需要注意几点：
-
-- 知道哪个是最后一条消息
-
-- 约定重新生成的方法。
-
-  到底是重新发送上一条消息，还是约定一个类型，让后端重新返回消息。 不管怎样，再次发送的消息都不要加入「消息数组」中，也不要保存历史记录。且根据需要，生成的两条 ai 消息，是都展示还是只展示最新的。
-
-## 六、源代码
-
-代码放在 [miniprogram-ai](https://github.com/my-Long/miniProgram-ai) 项目中，有兴趣的可下载看看。
+源代码在 [miniprogram-ai](https://github.com/my-Long/miniProgram-ai)，有兴趣可以下载看看。

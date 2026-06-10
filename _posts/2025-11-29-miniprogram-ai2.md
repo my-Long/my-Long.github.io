@@ -6,14 +6,15 @@ categories: [MiniApp]
 tags: [uniapp, ai]
 ---
 
-> 前面已经实现了 [ai 聊天页面的布局 与 数据获取](https://my-long.github.io/2025/11/20/miniprogram-ai/)，考虑到一般的数据都是 「markdown」 语法，现在对 ai 数据的展示进行一些优化处理。
+[上一篇](https://my-long.github.io/2025/11/20/miniprogram-ai/)把基本布局和数据获取跑通了，但 AI 返回的内容都是 markdown 字符串，直接展示就是一堆 `**加粗**`、`## 标题` 这类符号——要想办法解析渲染出来。
 
-## 一、空数据
+## 先把空数据和加载状态处理了
 
 ![post-ai-7.png](/images/post-ai-7.png){: .rounded-10 w='884' h='412' .w-50 .right}
-页面一开始，肯定是没数据的，现在添加个「空数据」页面，算是优化了。
 
-抽离出一个空数据页面，当没有数据时，展示这个页面。
+这两件事比较简单，顺手做了。
+
+空数据页面抽成独立组件 `ai-empty`，当 `chatList` 为空时展示：
 
 ```vue
 <template>
@@ -44,11 +45,8 @@ tags: [uniapp, ai]
 </style>
 ```
 
-在聊天页面中，引入这个空数据页面并使用。
-
 ```vue
 <template>
-  <!-- 其他代码 -->
   <view class="chat-container">
     <scroll-view
       v-if="chatList.length > 0"
@@ -62,178 +60,10 @@ tags: [uniapp, ai]
     </scroll-view>
     <ai-empty v-else></ai-empty>
   </view>
-  <!-- 其他代码 -->
 </template>
 ```
 
-
-
-## 二、处理 mardown 数据
-
-后端返回的数据大差不差，都是 markdown 语法的字符串。我这边模拟的数据是这样的：
-
-```json
-    '{"role": "ai", "delta": "## 岳阳楼记\\n\\n"}',
-    '{"role": "ai", "delta": "**庆历四年春**，滕子京谪守巴陵郡。"}',
-    '{"role": "ai", "delta": "越明年，政通人和，百废具兴。"}',
-    '{"role": "ai", "delta": "乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。\\n\\n"}',
-```
-
-在小程序端，主要需要进行两个步骤处理这些数据，分别是：
-
-1. 解析 markdown 语法
-2. 渲染 markdown 语法
-
-这里需要用到两个插件 `marked` 和 `mp-html` 。
-
-### 1. 解析 markdown 语法
-
-- 安装依赖：
-
-  ```bash
-  $ pnpm add marked
-  ```
-
-- 引入插件：
-
-  ```js
-  import marked from "marked";
-  ```
-
-- 解析 markdown 语法
-
-  ```js
-  const html = marked(text); // 将 markdown 语法转换为 html 字符串
-  ```
-
-### 2. 渲染 markdown 语法
-
-- 安装依赖：
-
-  ```bash
-  $ pnpm add mp-html
-  ```
-
-- 引入组件：
-
-  ```js
-  import mpHtml from "mp-html/dist/uni-app/components/mp-html/mp-html.vue";
-  ```
-
-- 渲染 markdown 语法
-
-  ```vue
-  <template>
-    <view class="ai-sys-text">
-      <mp-html :content="html" />
-    </view>
-  </template>
-  ```
-
-### 3. 组件应用
-
-在 `ai-sys-text` 组件中，引入 `mp-html` 和 `marked` 组件并使用。
-
-```js
-const typingText = (text) => {
-  if (!text) return;
-  clearTimeout(timer);
-  // 继续从当前位置打字
-  const step = () => {
-    if (typingIndex.value < text.length) {
-      content.value = text.slice(0, ++typingIndex.value);
-      htmlContent.value = marked(content.value); // 将 markdown 语法转换为 html 字符串
-      timer = setTimeout(step, 20);
-    } else {
-      // 打字完成后，标记不再需要打字效果
-      needTypingEffect.value = false;
-    }
-  };
-  step();
-};
-```
-
-```vue
-<template>
-  <view class="ai-sys-text">
-    <mp-html :content="htmlContent" />
-  </view>
-</template>
-```
-
-### 4. 样式优化
-
-现在渲染出来的是纯黑文本、且行间距是默认的，不太协调，这里对于一些常用标签就行一些处理。
-
-```js
-const style = {
-  h1: "line-height:1.5;color:#FE2BC2;margin:30rpx 0",
-  h2: "line-height:1.5;color:#ff37c6;margin:30rpx 0",
-  h3: "line-height:1.5;color:#ff45ca;margin:20rpx 0",
-  h4: "line-height:1.5;color:#ff54ce;margin:15rpx 0",
-  h5: "line-height:1.5;color:#ff67d4;margin:15rpx 0",
-  ul: "padding-top:10rpx; padding-bottom:10rpx",
-  ol: "padding-top:10rpx; padding-bottom:10rpx",
-  li: "line-height:1.8;color:#333",
-  p: "line-height:1.8;color:#333",
-  strong: "color:#FD4E30;",
-  hr: "border: none; border-top: 1px solid #EFEFEF; margin: 15px 0;",
-};
-```
-
-```vue
-<template>
-  <view class="ai-sys-text">
-    <mp-html :tag-style="style" :content="htmlContent" />
-  </view>
-</template>
-```
-
-### 5. 渲染优化
-
-目前已经可以是进行 「markdown」语法的渲染了，但是有些显示的 bug:
-
-> 字符串是循环输出的，然后交给 `marked` 解析成标签，但是在遇到如 「加粗」 这样的格式时（`**加粗**`），会有问题。当接收到前面的 `**` 时，还没有形成有效的 `strong` 标签，因此会在页面上输出 `**` ，当解析到后面的 `**`后，形成闭合，才会将文本加粗。
-
-> 在下个渲染内容是 无序列表或有序列表时，会将前面的内容错误的识别成标题（h1、h2 等），导致突然变大，造成闪动。
-
-以上两个显示 bug 如下：
-
-<video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-8.mp4" controls autoplay muted loop width="300"></video>
-
-**基于以上问题，需要对 `marked` 解析出来的 html 字符串进行一些处理，以解决这些显示 bug。**
-
-> 借用强大的 ai，对数据先进行预处理，在交给 `marked` 解析(文件在源代码中)。
-
-```js
-import { completeMarkdown } from "@/utils/completeMarkdown";
-
-const typingText = (text) => {
-  if (!text) return;
-  clearTimeout(timer);
-  const step = () => {
-    if (typingIndex.value < text.length) {
-      content.value = text.slice(0, ++typingIndex.value);
-      // 补全未闭合的标记后再渲染
-      const completedContent = completeMarkdown(content.value); // 预处理 markdown 字符串
-      htmlContent.value = marked(completedContent);
-      timer = setTimeout(step, 60);
-    } else {
-      // 打字完成后，标记不再需要打字效果
-      needTypingEffect.value = false;
-    }
-  };
-  step();
-};
-```
-
-<video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-9.mp4" controls autoplay muted loop width="300"></video>
-
-## 三、加载状态
-
-先简单的做一些反馈优化，在发送消息后，等待 ai 回复，期间显示加载状态。
-
-自定义一个 `loading` 组件，用于显示加载状态。
+加载状态也抽了个 `ai-loading` 组件，用弹跳动画表示「等待回复中」。发消息后显示，收到第一条数据后隐藏：
 
 ```vue
 <template>
@@ -304,89 +134,132 @@ const typingText = (text) => {
 </style>
 ```
 
-声明一个状态，用于控制是否显示加载状态。
-
 ```js
-const isWaiting = ref(false); // 是否正在等待(从发送到接收消息)
+const isWaiting = ref(false);
 
 const sendMessage = (message) => {
-  isWaiting.value = true; // 发送消息后，显示加载状态
-  //   其他代码
+  isWaiting.value = true;
+  // 其他代码
 };
 
-// 监听数据返回
 if (requestTask.onChunkReceived) {
   requestTask.onChunkReceived(async (res) => {
-    isWaiting.value = false; // 接收数据后，隐藏加载状态
+    isWaiting.value = false;
     // 其他代码
   });
 }
 ```
 
+## markdown 渲染，以及两个绕不过去的 bug
+
+模拟的数据是流式输出的 markdown 片段：
+
+```json
+'{"role": "ai", "delta": "## 岳阳楼记\\n\\n"}',
+'{"role": "ai", "delta": "**庆历四年春**，滕子京谪守巴陵郡。"}',
+'{"role": "ai", "delta": "越明年，政通人和，百废具兴。"}',
+'{"role": "ai", "delta": "乃重修岳阳楼，增其旧制，刻唐贤今人诗赋于其上，属予作文以记之。\\n\\n"}',
+```
+
+解析用 `marked`，渲染用 `mp-html`，两个依赖一起装：
+
+```bash
+pnpm add marked mp-html
+```
+
+在 `ai-sys-text` 组件里，打字机每输出一个字符就调一次 `marked` 转成 HTML，塞给 `mp-html` 渲染：
+
+```js
+import marked from "marked";
+import mpHtml from "mp-html/dist/uni-app/components/mp-html/mp-html.vue";
+
+const typingText = (text) => {
+  if (!text) return;
+  clearTimeout(timer);
+  const step = () => {
+    if (typingIndex.value < text.length) {
+      content.value = text.slice(0, ++typingIndex.value);
+      htmlContent.value = marked(content.value);
+      timer = setTimeout(step, 20);
+    } else {
+      needTypingEffect.value = false;
+    }
+  };
+  step();
+};
+```
+
 ```vue
 <template>
-  <!-- 其他代码 -->
-  <view class="chat-list">
-    <ai-loading v-if="isWaiting"></ai-loading>
-    <view
-      class="chat-item"
-      v-for="(item, index) in chatList"
-      :key="item.id"
-      :class="{ user: item.role === 'user', ai: item.role === 'sys' }"
-    >
-      <ai-user-text v-if="item.role === 'user'" :text="item.delta" />
-      <ai-sys-text
-        v-if="item.role === 'ai'"
-        v-model:is-replying="isReplying"
-        :text="item.delta"
-        :is-receiving="item.id === currentReceivingId"
-      />
-    </view>
+  <view class="ai-sys-text">
+    <mp-html :tag-style="style" :content="htmlContent" />
   </view>
-  <!-- 其他代码 -->
 </template>
 ```
 
-## 四、禁用发送（打断）
+样式做了简单定制，避免纯黑文本贴着默认行间距太难看：
 
-### 1. 需求分析
+```js
+const style = {
+  h1: "line-height:1.5;color:#FE2BC2;margin:30rpx 0",
+  h2: "line-height:1.5;color:#ff37c6;margin:30rpx 0",
+  h3: "line-height:1.5;color:#ff45ca;margin:20rpx 0",
+  h4: "line-height:1.5;color:#ff54ce;margin:15rpx 0",
+  h5: "line-height:1.5;color:#ff67d4;margin:15rpx 0",
+  ul: "padding-top:10rpx; padding-bottom:10rpx",
+  ol: "padding-top:10rpx; padding-bottom:10rpx",
+  li: "line-height:1.8;color:#333",
+  p: "line-height:1.8;color:#333",
+  strong: "color:#FD4E30;",
+  hr: "border: none; border-top: 1px solid #EFEFEF; margin: 15px 0;",
+};
+```
 
-这里的需求应该是这样的：
+跑起来之后发现两个渲染 bug。第一个是加粗的问题：打字机逐字输出，遇到 `**加粗**` 时，输到第一个 `**` 时 `marked` 还没看到闭合符，就直接把 `**` 显示出来，等后面的 `**` 到了内容才突然变粗。第二个是列表前的内容会被误判成标题：有序/无序列表前面有文字时，`marked` 会把前面那段错误解析成 `h1`、`h2` 之类，字体突然变大再变回来，一闪一闪。
 
-- 当用户点击发送按钮后，发送按钮变成「可打断」状态，此时无法发送消息。
-- 当用户点击「打断」按钮后，可打断 ai 的消息回复，然后可重新发送消息。
+<video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-8.mp4" controls autoplay muted loop width="300"></video>
 
-因此，需要添加一个状态，用于控制是否可打断。
+**两个 bug 都出在「字符串不完整就送去解析」这件事上。** 借助 AI 写了一个 `completeMarkdown` 工具函数，在交给 `marked` 之前先把未闭合的 markdown 标记补全（完整实现在源码里）。打字机改成先预处理再渲染：
 
-我的设计是：当用户发送消息后，我就默认将发送按钮设置为「可打断」状态。但是这里有个需求上的问题，就是 `打断回复`。
+```js
+import { completeMarkdown } from "@/utils/completeMarkdown";
 
-到底是打断「接口的回复」还是「打字机的显示」。因为我原先的设计是前端进行打字显示，所以页面上的内容输出**始终是比接口完成的慢**。而对于聊天记录的保存，我的设计也是在 ai 回复完成后，直接把 ai 回复的内容保存到聊天记录中，所以，「保存记录」是与「打断回复」密切相关的。
+const typingText = (text) => {
+  if (!text) return;
+  clearTimeout(timer);
+  const step = () => {
+    if (typingIndex.value < text.length) {
+      content.value = text.slice(0, ++typingIndex.value);
+      const completedContent = completeMarkdown(content.value);
+      htmlContent.value = marked(completedContent);
+      timer = setTimeout(step, 60);
+    } else {
+      needTypingEffect.value = false;
+    }
+  };
+  step();
+};
+```
 
-### （1） 假设是打断接口的回复
+<video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-9.mp4" controls autoplay muted loop width="300"></video>
 
-因为打字机始终是比接口输出慢的，所以如果打断的是「接口」，那在视图上其实内容还在输出。比如《静夜思》，在接口输出「举头望明月」后就打断了，但是页面上刚渲染到「疑是地上霜」，因此页面上还会继续输出「举头望明月」，那在用户看来，就会有「我已经打断了，怎么还继续回复的疑惑」
+## 「打断回复」该打断什么
 
-### （2） 假设是打断打字机的显示
+加完打字机之后，想着把「打断」功能也加上——发消息后按钮变成「停止」，点了就打断 AI 的回复。
 
-同理，打字机始终比接口输出的慢，所以如果打断的是「打字机」，那在某种状态下，接口是已经完成了输出，只是打字机还在继续输出。比如《静夜思》，接口已经完成所有内容的输出，但是打字刚执行到「举头望明月」，此时用户打断内容输出，在用户的直观感受来看，内容确实是已经停止输出了，但是在接口完成的那一刻，已经在该条内容存入了记录。所以，在下次进入聊天界面，获取历史记录的时候，就会发现会输出全部内容，之前的「打断操作」并没有生效。
+看起来简单，仔细想不对：**到底是打断接口，还是打断打字机？**
 
-### 2. 方案思考
+两个不是一回事，因为打字机始终比接口慢。
 
-**我没有进行真正的打断操作**，只是添加了切换了按钮的状态而已。
+如果打断的是接口：接口停了，但打字机还在跑。比如《静夜思》，接口被打断在「举头望明月」，但页面刚打到「疑是地上霜」，画面上内容还会继续往下走——用户会懵：「我不是已经打断了吗？」
 
-如果要真的实现这个功能，基于前面的「前端进行打印」和「前端进行保存记录」，那可以将错就错。
+如果打断的是打字机：又有另一个问题。假如接口已经全部输出完，打字机才跑到一半，用户这时候打断——页面是停了，但如果之前是「接口完成就保存记录」，历史记录里早就存了完整内容。下次进聊天一看，打断没生效。
 
-调整一下，不在「接口完成」后保存记录，而是在「打字机完成」后保存记录。
+**这两个方案都有问题，但换个角度，「前端打印」恰好给了一个出路**：不在接口完成时保存记录，改在打字机完成时保存——打断了就保存截止那一刻已经显示的内容，没打断就打字完了再保存。两种情况都对得上用户实际看到的内容。
 
-那就是在打字机完成输出后，将已经输出的内容调用接口，保存记录。
+这是下一篇要实现的部分，这里先把按钮状态切换做了。
 
-此种方法，应该是比其他方案更方便了，因为如果不用「前端进行打印」，那为了实现流畅的打字机效果，那接口就得控制每一个流式数据的大小，保证每一条数据只有 2 个字符左右，才能让内容输出有流畅的效果。反之，如果不处理数据大小，那一条有 10 个字符，一条有 20 个字符，在页面上就会一块一块的显示，太突兀。
-
-### 3. 按钮状态切换
-
-话说回来，我把「发送消息」到 「打字结束」这一过程称为 「消息回复的过程」，用 `isReplying` 来表示。
-
-在 `ai-sys-text` 组件中，双向绑定一个 `is-replying` 变量，用于表示是否正在回复消息。
+从发消息到打字结束这整个过程，用 `isReplying` 来表示。`ai-sys-text` 组件双向绑定它，打字过程中维持 `true`，打字完成置 `false`：
 
 ```js
 const isReplying = defineModel("isReplying");
@@ -410,11 +283,11 @@ const typingText = (text) => {
 };
 ```
 
-在发送消息后，就将 `isReplying` 设置为 `true`，表示正在回复消息，并传递给 `ai-keyboard`，控制发送按钮的状态。
+发消息时主动置 `true`，把状态传给 `ai-keyboard` 控制按钮显示：
 
 ```js
 const sendMessage = (message) => {
-  isReplying.value = true; // 表示正在回复消息
+  isReplying.value = true;
   isWaiting.value = true;
   chatMessage.value = message;
   const obj = {
@@ -434,14 +307,14 @@ const sendMessage = (message) => {
 </template>
 ```
 
-在 `ai-keyboard` 组件中，当 `is-replying` 变化为 `true` 时，按钮切换为「打断」状态。
+`ai-keyboard` 里 `isReplying` 为 `true` 时发送逻辑直接 return，图标切成停止样式：
 
 ```js
 const sendMessage = () => {
   if (props.isReplying) {
     return;
   }
-  //   其他代码
+  // 其他代码
 };
 ```
 
@@ -465,8 +338,6 @@ const sendMessage = () => {
 </template>
 ```
 
-## 五、项目效果
+目前效果如下，[源代码](https://github.com/my-Long/miniProgram-ai)在 `dev` 和 `main` 分支：
 
 <video src="https://cdn.jsdelivr.net/gh/my-Long/blog-assets/videos/post-ai-10.mp4" controls autoplay muted loop width="300"></video>
-
-可访问 [miniprogram-ai](https://github.com/my-Long/miniProgram-ai) 查看源代码，目前代码在 `dev` 和 `main` 中。
