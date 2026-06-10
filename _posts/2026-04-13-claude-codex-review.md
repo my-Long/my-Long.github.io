@@ -4,9 +4,6 @@ description: "A hands-on comparison of Claude and Codex from real usage experien
 date: 2026-04-13 00:00:00 +0800
 categories: [Essays]
 tags: [ai, claude, codex]
-image:
-  path: /images/claudevscodex.png
-  alt: "Claude vs Codex"
 ---
 
 > 我好想用 `Claude` 🙉

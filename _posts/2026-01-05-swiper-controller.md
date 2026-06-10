@@ -7,6 +7,7 @@ tags: [swiper,vue,react,component]
 image:
   path: /images/swiper-bg.png
   alt: "Two-way control swiper"
+pin: true
 ---
 
 > 一言难尽！！！ 有一种很常见的效果，即一部分是「时间轴」，另一部分是「内容区」，他们之间相互控制。这种效果也常常出现在「tab」切换中。
