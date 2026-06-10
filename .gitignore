@@ -1,18 +1,35 @@
-_site/
-_posts/_draft/
-_posts/_archive/
-_archive/
-node_modules/
-.jekyll-cache/
+# Bundler cache
+.bundle
+vendor
+Gemfile.lock
+
+# Jekyll cache
+.jekyll-cache
 .jekyll-metadata
-.bundle/
-vendor/
-.vscode/
-.idea/
-*.log
-*.lock
-*.sh
+_site
+
+# RubyGems
+*.gem
+
+# NPM dependencies
+node_modules
+package-lock.json
+
+# IDE configurations
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# Claude
+.claude
+
+# Misc
+_sass/vendors
+assets/js/dist
+
+# Hidden system files
+*~
 .DS_Store
-*/.DS_Store
-*/*/.DS_Store
-*/*/*/.DS_Store
+Thumbs.db
