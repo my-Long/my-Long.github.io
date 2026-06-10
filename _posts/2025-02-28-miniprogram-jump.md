@@ -6,35 +6,13 @@ categories: [MiniApp]
 tags: [uniapp]
 ---
 
-## 前言
+需求是这样的：对接第三方插件，插件用 `userId` 鉴权，但我们的支付宝小程序是新版本，只能拿到 `openId`。
 
-目前遇到这么一个需求，在业务中，需要对接第三方平台的功能，使用他们的插件。在调用他们插件时，需要提供 `userId`，但随着支付宝小程序版本的迭代，新申请的支付宝小程序都默认是返回 `openId`，因此，针对这个问题，有几种不同的方案。
+讨论了几轮，最后决定：再申请一个同主体的旧版支付宝小程序（以下叫 B 程序），从当前小程序（A 程序）跳过去，B 程序拿到 `userId` 之后再跳回来，A 程序继续处理后续业务。绕了一圈，但比其他方案的改动代价小，能接受。
 
-- 方案一： 第三方插件使用 `openId` 进行用户鉴权。
+## setup
 
-- 方案二： 使用 `userId` 接入第三方插件。 将当前小程序进行降级回退处理，后续都使用 `userId` 进行鉴权。
-
-- 方案三： 使用 `userId` 接入第三方插件。 再申请一个同主体的旧版小程序，在处理业务时，跳到到旧版小程序获取 `userId`，再返回当前下程序进行相关业务处理。
-
-经过多方讨论，决定采用方案二。
-
-## 准备工作
-
-### 1.小程序准备
-
-在支付宝开发平台重新申请一个旧版小程序，并拉入开发人员和配置好域名白名单等信息。
-
-### 2.小程序配置
-
-一些 `uniapp` 项目的基本配置，如 `appid` 等。
-
-#### 1. appId 配置
-
-使用 `HBuilderX` 创建一个 ``项目，并在`manifest.json`文件中配置`appid` 。
-
-#### 2. 自定义运行配置
-
-新增 `package.json` 文件。
+B 程序用 `HBuilderX` 新建，在 `manifest.json` 里配 `appId`。环境变量走 `package.json`：
 
 ```json
 {
@@ -59,16 +37,13 @@ tags: [uniapp]
 }
 ```
 
-开发时，在 `HBuilderX` 中，点击 「运行」 就可以看到自定义运行的路径。
+配好之后，在 `HBuilderX` 的「运行」菜单里就能看到自定义的路径：
 
 ![post-bg-mini-h.png](/images/post-bg-mini-h.png){: .shadow .rounded-10 w='884' h='412' }
 
-#### 3. 简单的 api 环境配置
-
-正常情况下，应该封装一个 `request` 方法，用来处理请求，并根据环境变量配置不同的请求地址。但这里只是为了为了获取 `userId`，因此仅一个接口，就不需要封装了，简单判断一下即可。
+B 程序只有一个接口——用 `authCode` 换 `userId`——没必要封装 request，简单判断一下环境就行：
 
 ```js
-// config.js
 const enObj = {
   dev: "https://dev.hldian.cn/cloud-user",
   prod: "https://prod.hldian.cn/cloud-user",
@@ -77,109 +52,89 @@ const env = process.env.ENV_TYPE;
 export const apiUrl = enObj[env] || enObj.dev;
 ```
 
-## 实现
+## 跳转
 
-需要从当前小程序（以下称为 A 程序）跳转到旧版小程序（以下称为 B 程序），并获取 `userId`，然后返回到 A 程序进行相关业务处理。
-
-### 1. 跳转到 B 程序
-
-根据[支付宝开发文档](https://opendocs.alipay.com/mini/api/yz6gnx?pathHash=36bd7c7c)提供的 api 进行跳转。因为是【同主体】下的两个小程序，因此不需要再做额外的跳转申请。
+A 程序用支付宝的 `my.navigateToMiniProgram` api 跳到 B 程序：
 
 ```vue
 <script setup>
-
 const getUserId = () => {
-     my.navigateToMiniProgram({
-        appId: "233222111000xxxx",
-        success: (res) => {},
+  my.navigateToMiniProgram({
+    appId: "233222111000xxxx",
+    success: (res) => {},
   });
-}
-<script>
+};
+</script>
 ```
 
-> 注意： 如果是使用开发者工具进行模拟，那将无法跳转，需要使用【真机调试】。
+> 开发者工具里模拟不了跨程序跳转，必须用**真机调试**。
 {: .prompt-danger}
 
-如果已经真机调试并且跳转了，你会发现，还是无法跳转，错误提示如下：
+第一次真机调试，直接报错：
 
 ![错误](/images/post-mini-error.jpeg){: .shadow .rounded-10 w='1167' h='1607' .w-50 }
 
-### 2. 跳转配置与方案
+原因是漏了一个容易忽略的 setup：需要同时打开 A 和 B 两个程序，在各自右上角胶囊的「联调设置」里把开关打开，才能跳转。A 程序用真机调试，B 程序用预览。
 
-需要同时启动 A 程序和 B 程序。A 程序为了方便后续查看参数，可使用【真机调试】。B 程序使用 【预览】。
-
-在小程序被打开后，点击右上角的胶囊【...】，在弹出来的弹窗中，点击【[联调设置](https://opendocs.alipay.com/mini/api/yz6gnx?pathHash=36bd7c7c)】，把「联调扫码版本」的开关打开。
-
-### 3. B 程序获取 userId 并返回
-
-B 程序在启动时，会触发 `onLoad` 方法，在这里可以获取 `userId`，并调用 [navigateBackMiniProgram](https://opendocs.alipay.com/mini/api/open-miniprogram?pathHash=d0213066) 方法返回 A 程序。
+跳过去之后，B 程序在 `onLoad` 里拿 `authCode`，请求接口换 `userId`，再通过 `my.navigateBackMiniProgram` 带数据跳回来：
 
 ```vue
 <script setup>
- const  getCode = ()=> {
-      my.getAuthCode({
-        scopes: "auth_user",
+const getCode = () => {
+  my.getAuthCode({
+    scopes: "auth_user",
+    success: (res) => {
+      const authCode = res.authCode;
+      uni.request({
+        url: apiUrl + "/yourapi/apli?authCode=" + authCode,
+        method: "POST",
         success: (res) => {
-          const authCode = res.authCode;
-          uni.request({
-            url: apiUrl + "/yourapi/apli?authCode=" + authCode,
-            method: "POST",
+          const id = res.data.result;
+          my.navigateBackMiniProgram({
+            extraData: { result: id },
             success: (res) => {
-              const id = res.data.result;
-              my.navigateBackMiniProgram({
-                extraData: {
-                  result: id,
-                },
-                success: (res) => {
-                  console.log("返回 A 小程序成功", res);
-                },
-              });
+              console.log("返回 A 小程序成功", res);
             },
           });
         },
       });
     },
-<script>
+  });
+};
+</script>
 ```
 
-### 4. A 程序获取返回值
+## 拿返回值，有个坑
 
-在[官方文档](https://opendocs.alipay.com/mini/0ebk4g?pathHash=d9dc9fcb)和一些 ai 的回答中，都是说在 `onShow` 的 「options」 中可以获取到返回值，但实际测试发现，并没有获取到。
+A 程序在 `onShow` 里接收返回值。官方文档和 AI 的回答都是说在 `onShow` 的 `options` 参数里能拿到，但实际测试拿不到，`options` 是空的。
 
-经过测试发现，还是得调用 `my.getEnterOptionsSync` api 来获取返回值。
+翻了一圈，最后用 `my.getEnterOptionsSync` 才拿到：
 
 ```vue
 <script setup>
 onShow() {
-    const options = my.getEnterOptionsSync();
-      if (options?.referrerInfo?.extraData) {
-      const { result } = options.referrerInfo.extraData;
-      // 拿到 userId 进行相关业务处理
-    }
+  const options = my.getEnterOptionsSync();
+  if (options?.referrerInfo?.extraData) {
+    const { result } = options.referrerInfo.extraData;
+    // 拿到 userId，继续处理
+  }
 }
-<script>
+</script>
 ```
 
-## 总结
+整个流程在 iOS 上跑通了，挺顺的。
 
-到此，同个主体间的小程序之间的跳转就完成了，比较简单，但是还会有些坑，主要是由信息差异造成的。比如说需要在联调设置中打开开关，获取返回参数需要手动调用 `my.getEnterOptionsSync` 方法。
+## Android 一直跑不通
 
-## 后续
+切到 Android 测，跳转失败，报错和之前一样。查了社区、问了 AI、翻了官方文档，唯一稍微可信的说法是「需要发布体验版」。把 A、B 都发成体验版之后，iOS 还是正常，Android 还是不行。
 
-上面的流程是没有问题的，当然，是在 ios 系统下操作的。当在 android 系统下操作时，失败了，如【实现】—— 【1. 跳转到 B 程序】中失败的提示。通过社区、ai、官方文档等都没有找到一个合理解决方案，有一个稍微可靠的是「需发布为体验版」。
+多次测试下来，发现有一种奇怪的操作顺序可以让它跑通：
 
-在将 A、B 小程序发布为体验版后， ios 系统依然可以正常跳转，但 android 系统仍然无法跳转。通过多次测试，有一种情况下是可以跳转的：
+- 打开 B 程序体验版，打开联调设置。
+- 从 A 程序跳——失败。
+- 打开 B 程序开发版做真机预览，打开联调设置。
+- 从 A 程序跳——失败。
+- 把 B 程序开发版的联调设置关掉，清除缓存。打开 B 程序体验版，打开联调设置。
+- 从 A 程序跳——成功。
 
-- 启动 B 程序体验版，并在「联调设置」中打开开关。
-
-- 启动 A 程序，点击按钮，触发跳转到 B 程序的逻辑。结果为失败。
-
-- 启动 B 程序开发版，进行「真机预览」，并在「联调设置」中打开开关。
-
-- 启动 A 程序，点击按钮，触发跳转到 B 程序的逻辑。结果为失败。
-
-- 将 B 程序开发版的「联调设置」关闭，并清楚缓存。打开 B 程序体验版，并在「联调设置」中打开开关。
-
-- 启动 A 程序，点击按钮，触发跳转到 B 程序的逻辑。结果为成功。
-
-通过这种方式才能进行挑战，但是方式是比较繁琐的，目前还是没找到原因。 我觉得其核心点就是得先进入 B 程序的开发版，然后清除缓存，然后再进入体验版。
+为什么必须是这个顺序，我也不知道。感觉核心点是「先进过开发版，再进体验版」，但这说不通，也没法给别人解释。目前这个问题还悬着。
