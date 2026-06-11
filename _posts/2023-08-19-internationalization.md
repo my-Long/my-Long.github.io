@@ -6,35 +6,15 @@ categories: [JS, Engineering]
 tags: [vue, i18n]
 ---
 
-## 一、国际化
+项目要支持中英文切换，先想清楚用哪种方案。
 
-其实，我们平常说的 「国际化」配置，也就是语言配置而已，不包括地区的宗教信仰、生活习惯等等。而语言配置，一般都是结合文件，使用变量替换的方式实现的，我相信很多人也都做过 「国际化」，都有一定的经验。
+能想到的有三种：把语言存到 localStorage，下次打开直接读；多域名，`cn.example.com` 加载中文，`en.example.com` 加载英文；或者把语言塞进路由路径，`/cn/home`、`/en/home` 这种。
 
-## 二、切换方案
+localStorage 最简单，但刷新页面会有短暂的语言闪烁。多域名成本高，这个项目用不着。最后选的路由方案——不需要额外缓存，语言状态直接反映在 URL 里，分享链接也能保持语言设置。
 
-目前，我所了解到的方案有以下三种：
+## 语言包和 i18n 配置
 
-- 本地缓存：
-
-  点击「切换」按钮后，将当前的语言，如 `en` 缓存到本地，下次打开页面时，直接读取缓存的语言。
-
-- 基于 域名：
-
-  这是一些大的网站使用的方式，就是有多个语言的域名，如 `cn.example.com`、`en.example.com`。当用户访问 `cn.example.com` 时，默认显示中文，访问 `en.example.com` 时，默认显示英文。
-
-- 基于 路由：
-
-  这种方式，就是在路由中，根据当前的语言，动态的加载对应的语言包。比如，当用户访问 `example.com/cn` 时，加载中文语言包，访问 `example.com/en` 时，加载英文语言包。
-
-经过考虑，我觉得「基于路由」这样方式更好，这种方式的好处是，不需要在本地缓存语言，也不需要在域名上做特殊处理，只需要在路由中做好配置即可。
-
-## 实现
-
-基于路由的实现，需要用到 `vue-router` 和 `vue-i18n` 两个库。
-
-### i18n 配置
-
-首先，我们需要在 `src` 下创建 `lang` 目录。
+在 `src` 下建 `lang` 目录：
 
 ```
 src
@@ -44,7 +24,7 @@ src
 │   └── index.ts
 ```
 
-在 `index.ts` 中创建 `vue-i18n` , 并配置好语言包。获取路由的语言标识，作为默认语言。
+`index.ts` 里创建 `vue-i18n` 实例，默认语言从路径里读，读不到就看浏览器语言，再兜底 `en`：
 
 ```ts
 import { createI18n } from "vue-i18n";
@@ -52,13 +32,10 @@ import cn from "./cn.json";
 import en from "./en.json";
 
 const messages = {
-  en: {
-    ...en,
-  },
-  cn: {
-    ...cn,
-  },
+  en: { ...en },
+  cn: { ...cn },
 };
+
 const getLang = () => {
   const lang =
     location.pathname.split("/")[1] || navigator.language.split("-")[0] || "en";
@@ -77,110 +54,62 @@ const i18n = createI18n({
 export default i18n;
 ```
 
-在 `main.ts` 中，导入 `i18n` 并挂载到 `Vue` 实例上。
+`main.ts` 里挂上：
 
 ```ts
 import i18n from "./lang";
-
 app.use(i18n);
 ```
 
-### 路由配置
+## 路由配置
 
-在 `router` 目录下，创建 `index.ts` 文件，配置路由。
-
-默认情况下，通过 `/home` 就能访问首页，但是现在路由加了「前缀」，所以就不能什么都不配置，就如 `router.push("/home")` 一样直接跳转。
-
-- 处理路由表
-
-  通过 `/:lang(en|cn)/` 来匹配语言标识，并将其作为 `params` 传递给各个组件。
-
-  ```ts
-  // router/index.ts
-  import i18n from "@/lang";
-  const routes = [
-    {
-      path: "/",
-      redirect: "/home",
-    },
-    {
-      path: "/:lang(en|cn)/",
-      component: () => import("@/layout/index.vue"),
-      children: [
-        {
-          path: "home",
-          name: "home",
-          component: () => import("@/views/home/index.vue"),
-        },
-        {
-          path: "profile",
-          name: "profile",
-          component: () => import("@/views/profile/index.vue"),
-        },
-      ],
-    },
-  ];
-  ```
-
-- 路由守卫
-
-  要跳转到某个页面，使用 `path` 必须写完整路径，因此每次跳转都得带上语言标识，如 `router.push("/en/home")`。首先还要获取到当前语言，再拼接路径，最后跳转，这是非常麻烦的，因此我们可以用 `beforeEach` 路由守卫来处理。
-
-  ```ts
-  // router/index.ts
-  router.beforeEach((to, from, next) => {
-    const lang = i18n.global.locale.value;
-    const path = to.path;
-
-    if (!path.startsWith(`/${lang}`)) {
-      next({ path: `/${lang}${path}` });
-      console.log(`Redirected to: /${lang}${path}`);
-    } else {
-      next();
-    }
-  });
-  ```
-
-### 语言切换组件
-
-在 `components` 目录下，创建 `LanguageSwitch.vue` 文件，实现语言切换功能。
-
-使用 `a-dropdown` 组件结合自定义图标实现该组件，结构部分如下：
-
-```vue
-<template>
-  <a-dropdown>
-    <IconFont type="h-guojihua" />
-    <template #overlay>
-      <a-menu @click="onLangChange">
-        <a-menu-item key="cn" v-if="locale == 'en'"> 简体中文 </a-menu-item>
-        <a-menu-item key="en" v-if="locale == 'cn'"> English </a-menu-item>
-      </a-menu>
-    </template>
-  </a-dropdown>
-</template>
-```
-
-在 `script` 部分，我们需要获取到 `i18n` 实例，并监听 `locale` 变化，根据当前语言显示不同的文字，并刷新路由。
+路径加了语言前缀，路由表得配合：
 
 ```ts
-onMounted(() => {
-  checked.value = locale.value === "en";
-  setRoute(locale.value);
+const routes = [
+  {
+    path: "/",
+    redirect: "/home",
+  },
+  {
+    path: "/:lang(en|cn)/",
+    component: () => import("@/layout/index.vue"),
+    children: [
+      {
+        path: "home",
+        name: "home",
+        component: () => import("@/views/home/index.vue"),
+      },
+      {
+        path: "profile",
+        name: "profile",
+        component: () => import("@/views/profile/index.vue"),
+      },
+    ],
+  },
+];
+```
+
+每次跳转都要带语言前缀，写成 `router.push("/en/home")` 这种太繁琐。用路由守卫统一处理，跳转时自动补上：
+
+```ts
+router.beforeEach((to, from, next) => {
+  const lang = i18n.global.locale.value;
+  const path = to.path;
+
+  if (!path.startsWith(`/${lang}`)) {
+    next({ path: `/${lang}${path}` });
+  } else {
+    next();
+  }
 });
 ```
 
-切换语言的时候，我们需要修改 `locale` 值，并刷新路由。
+这样 `router.push("/home")` 就够了，不用每次手动拼语言前缀。
 
-```ts
-const onLangChange = (value: any) => {
-  const lang = value.key;
-  locale.value = lang;
-  setRoute(lang);
-};
-```
+## 语言切换组件
 
-全部的代码如下：
+用 ant-design-vue 的 `a-dropdown` 做下拉切换。`setRoute` 里的 `route.path.slice(3)` 是把路径头三个字符（比如 `/cn`）切掉，换成新的语言前缀：
 
 ```vue
 <script setup lang="ts">
@@ -223,60 +152,23 @@ onMounted(() => {
 </template>
 ```
 
-> 到此，我们完成了基于路由的国际化方案，正常的路由跳转，刷新页面都没有问题。
+## 语言文件怎么写——i18n Ally
 
-## 效率
-
-这里涉及到一个语言配置的问题，接触到的一些古老的项目，使用 `js` 文件来存储语言配置，且对于语言配置是这样的:
+碰到过一些老项目，语言文件的 key 长这样：
 
 ```js
 // en.js
 export default {
   h: {
-    'h-t':'Home'
+    'h-t': 'Home'
   },
-  ...
-}
-
-// cn.js
-export default {
-  h: {
-    'h-t':'首页'
-  },
-  ...
 }
 ```
 
-在页面上是这么使用的：
+模板里 `{{ $t("h.h-t") }}` ，完全看不出来对应什么文案，维护靠猜。改成语义化的英文 key 会好一点，但设置 key 时就得先翻译一遍，又麻烦。
 
-```vue
-<template>
- <div class="title">{{ $t("h.h-t") }}</div>
-</template>
-```
-
-这种方式有两个弊端，一需要手动在其中一个文件中书写 `key`，而是 `key` 是无法语义化的字符串，模板中使用时，无法读取，难以维护。有的改良方案时使 `key` 语义化，用英文代替，如：
-
-```js
-// en.js
-export default {
-  home: {
-    title: 'Home'
-  },
-  ...
-}
-```
-
-但是这种方式在设置 `key` 时就需要先翻译一遍，而且如一些难的单词，有些开发者也不认识。
-
-### i18n Ally 插件
-
-这是一款 vscode 插件，可以自动生成 `i18n` 配置，并支持多种语言，还可以自动翻译 `key` 到其他语言。最基本的功能是可以自定义生成 `key`，然后通过面板来配置其他语言。而且如果对接了翻译平台，如谷歌、百度等，可以自动翻译。
-
-说一下基本的流程，鼠标经过模板上的文字，如中文时，点击「快速修复」——「提取文案到i18n」，这就是设置 `key` 的过程，这个 `key` 的形式可以进行配置，如 「首页」的 `key` 可以在默认配置了设置为 `shou-ye`，这种「横杠连接」的形式。确定 `key` 之后，就是填写「源语言」的文本了，如「源语言」是中文，那填写的文本——首页，就是中文下的文本。
-
-这时候对于其他语言的配置有三种做法，一是手动填写文本，二是点击「翻译」使用自动翻译，三是复制 `cn.json` 文件，翻译完之后，以原格式粘贴到 `en.json` 文件中。
-
-总的来说，i18n Ally 是一个很好的工具，可以自动生成 `i18n` 配置，并支持多种语言，还可以自动翻译 `key` 到其他语言，最重要的一点是可以在模板中显示翻译结果，这就大大增加了开发效率。
+i18n Ally 是个 VS Code 插件，解决了这个流程问题。鼠标经过模板里的中文文案，点「快速修复」→「提取文案到 i18n」，会让你设定 key，然后自动把这段文案写进语言文件。接了翻译平台（Google、百度等）还能自动翻译，最有用的是：模板里直接显示翻译结果，不用来回切文件对比。
 
 ![效果图](/images/post-lang-i18n.png){: .shadow .rounded-10 w='2402' h='1164'}
+
+做完路由方案之后翻文档翻到这个插件，装上之后才发现之前手写 key 那段时间是在浪费生命。

@@ -6,13 +6,9 @@ categories: [Vue]
 tags: [vue,component]
 ---
 
-## 前言
+发现了一个让我想了一会儿的现象：点击提交按钮，loading 没出现。
 
-最近写代码的时候发现一个小问题，就是点击提交按钮时，loading 效果的变化。我们一般都会在表单提交、或者列表查询时给按钮添加一个 loading 效果，当用户点击提交按钮时，按钮会变成 loading 状态，当提交成功或者失败时，loading 效果会消失。
-
-但是，我发现有时提交表单时，loading 效果并出现，所以我研究了一下。
-
-## 问题
+逻辑很清楚：
 
 ```ts
 const onOk = async () => {
@@ -26,22 +22,29 @@ const onOk = async () => {
 };
 ```
 
-这是表单中的一个封装，其中 `submit` 是调用了 `element ui` 的表单验证，通过了才会提交表单，并调用接口。
+`loading.value = true` 在最前面，按理应该先出现 loading，然后走后面的逻辑。但当表单校验失败时，loading 一次都没出现过——好像 `loading.value = true` 根本没执行。
 
-这上面的逻辑很清楚，点击按钮的时候，loading 效果会变成 true，提交成功或者失败后，loading 效果会变成 false。但是，当表单校验不通过时，按钮的 loading 效果竟然没有出现，换句话说，`loading.value = true` 好像没起作用。
+原因在于 Vue 的更新机制是异步的。`loading.value = true` 是同步代码，执行完之后 Vue 不会立即更新 DOM，它把这次更新放进一个队列，等当前的同步代码全跑完，才去处理队列里的 UI 更新。
 
-这是为什么呢？ 按照顺序，不应该是点击了，就执行了 `loading.value = true`，然后 loading 效果就出现吗？
+而 element-ui 的表单校验是同步的，校验不通过会立刻抛出，进入 `finally`，`loading.value` 马上被改回 `false`。Vue 等到有空处理更新队列时，loading 已经是 false 了，根本来不及渲染 true 的状态。
 
-## 更新机制
+**Vue 在同步代码里的多次 state 变化，最终只渲染最后一次的结果。**
 
-这是我查阅资料然后得出的结论，vue 的更新机制是异步的。也就是说，`loading.value = true` 这是同步代码，vue 记录了这个状态的变更，然后把 `UI` 更新加入了「更新队列」，等到所有同步代码执行完毕，才会去执行更新队列中的 `UI` 更新。
+接口请求之所以没这个问题，是因为 `await fetch()` 会让出主线程，Vue 趁这个空档更新 UI。表单校验太快，没给 Vue 任何机会。
 
-我通俗的理解为，vue规定了一个「时间」，结合异步更新机制，只要事件循环没有被阻塞太久，那么 vue 就会在等待的空隙中去执行更新队列中的 `UI` 更新。
+如果确实需要让 loading 出现，可以在设置之后加 `await nextTick()`，强制 Vue 先渲染一次再继续：
 
-结合以上出现问题，就是 `loading.value = true` 之后，等待 `UI` 更新，但是 `element ui` 的表单验证太快了，立即进入了 `finally` ，导致 `loading.value = false` 。之后 vue 有时间去更新 `UI` 了，但是 loading 的状态已经为 `false` 了，所以 loading 效果没有出现。
+```ts
+const onOk = async () => {
+  loading.value = true;
+  await nextTick();
+  try {
+    await instance?.value?.submit?.();
+    unmount();
+  } finally {
+    loading.value = false;
+  }
+};
+```
 
-## 解决方案
-
-其实并不存在什么解决方案，如果说非要让 `loading` 效果出现，表单验证不通过的时候也出现，那就可以强制的让 vue 更新 `UI`。一种是 `await nextTick()`，另一种是 `await` 的时候加一点时间。也可以一起使用。这样 vue 就会在 `await` 的空隙去更新 `UI`。
-
-同样的，我们在一些列表页面，点击查询按钮的时候，也会出现 loading 效果，接口请求结束之后，loading 效果消失，其实就是接口响应需要时间，给了 vue 时间去更新 `UI`。
+不过多数情况下，校验失败不显示 loading 也完全可以接受——反正用户马上就看到报错了。知道这个机制，比知道 workaround 更重要。
