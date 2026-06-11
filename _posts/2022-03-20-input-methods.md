@@ -6,31 +6,34 @@ categories: [JS, Base]
 tags: [input,component]
 ---
 
-我们经常会给 `input` 绑定事件监听内容的变化，然后做出一些处理。但是如果你注意，你就会发现在中文下，你还没有确定内容(比如 enter)，但是绑定的方法已经触发了。
+给搜索框绑了 `@input`，结果发现在中文输入法下，还没选字，`onSearch` 就已经触发了。你的键盘才敲到 `w`，准备输入「我」，搜索就先跑了一次。
 
-你的绑定是这样的，
+问题在于 `@input` 监听的是所有键盘输入，包括中文输入法拼音阶段的每一个字母。这时候文字还在「合成中」（composing），用户还没确定选哪个字。
 
-```js
-   <input type="text" @input="onSearch" v-model="msg">
-```
+浏览器提供了两个事件来标记这个过程：
 
-结果就是在中文输入法下，你还没选择文字，`onSearch`就触发了。
+- `compositionstart`：开始合成，比如你开始打拼音的那一刻
+- `compositionend`：合成结束，选了汉字或按 Esc 退出
 
-有两个事件 「compositionstart」、「compositionend」，我们要调整 `input`输入框的事件监听。
-
-> event !!!
->
-> compositionstart (合成开始)
->
-> compositionend （合成结束）
+用一个 flag 跟踪合成状态，合成期间跳过 `onSearch`：
 
 ```js
-//通过这种js的方式获取元素并绑定事件
 const bindFun = () => {
   const inp = document.querySelector("input");
+  let isComposing = false;
 
   inp.addEventListener("input", () => {
+    if (isComposing) return; // 合成中，不触发
     onSearch();
+  });
+
+  inp.addEventListener("compositionstart", () => {
+    isComposing = true;
+  });
+
+  inp.addEventListener("compositionend", () => {
+    isComposing = false;
+    onSearch(); // 选完汉字后触发一次
   });
 };
 
@@ -39,29 +42,6 @@ onMounted(() => {
 });
 ```
 
-现在实现一下 `bindFun`方法，
+`compositionend` 里补一次 `onSearch()`，保证选完字之后该触发的还是会触发。
 
-```js
-const bindFun = () => {
-  const inp = document.querySelector("input");
-  let isCompsing = false; // 是否合成
-
-  inp.addEventListener("input", () => {
-    if (isCompsing) return; //合成时，不触发搜索
-    onSearch();
-  });
-
-  // 合成开始和结束
-  inp.addEventListener("compositionstart", () => {
-    isCompsing = true;
-  });
-  inp.addEventListener("compositionend", () => {
-    isCompsing = false;
-    onSearch();
-  });
-};
-```
-
-### 提问
-
-这是一个输入框的情况下，如果页面存在多个输入框，处理多个还是会造成混乱的，在 vue 中大家是不是会封装成组件？ 在 reat 中是会封装成 「一般组件」还是 「HOC」 ?
+如果页面有多个这样的输入框，封装成组件是更好的做法——在 Vue 里做成普通组件，React 里你们会倾向于普通组件还是 HOC？

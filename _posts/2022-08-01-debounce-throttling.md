@@ -38,7 +38,7 @@ export const debounce = function (callback, delay) {
 };
 ```
 
-到此，两个核心功能完成，但是使用了全局变量 `timer`，这在多人开发时，可能会造成冲突，所以可以考虑使用「闭包」的方式来实现。
+但这里用了全局变量 `timer`，多人开发时有冲突风险，用闭包改一下：
 
 ```javascript
 export const debounce = function (callback, delay) {
@@ -65,7 +65,7 @@ const onSearch = () => {
 };
 ```
 
-这里面还缺少了「参数的传递」，即在触发 `onSearch` 调用 `debounce` 时，应该把参数传递给 `debounce` 函数，然后在防抖函数的回调中传出该参数。
+还缺少参数传递——触发 `onSearch` 时的参数要透传给回调：
 
 ```javascript
 //debounce.js
@@ -120,7 +120,7 @@ export const throttle = function (callback, delay) {
 };
 ```
 
-这是一个完整的延迟触发的节流函数，在页面上使用，
+使用：
 
 ```javascript
 const throttle = utils.throttle(function (val) {
