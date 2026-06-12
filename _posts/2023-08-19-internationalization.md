@@ -169,6 +169,8 @@ export default {
 
 i18n Ally 是个 VS Code 插件，解决了这个流程问题。鼠标经过模板里的中文文案，点「快速修复」→「提取文案到 i18n」，会让你设定 key，然后自动把这段文案写进语言文件。接了翻译平台（Google、百度等）还能自动翻译，最有用的是：模板里直接显示翻译结果，不用来回切文件对比。
 
-![效果图](/images/post-lang-i18n.png){: .shadow .rounded-10 w='2402' h='1164'}
+![效果图](/images/post-lang-i18n-light.png){: .shadow .rounded-10 w='2402' h='1164' .light}
+![效果图](/images/post-lang-i18n-dark.png){: .shadow .rounded-10 w='2402' h='1164' .dark}
+
 
 做完路由方案之后翻文档翻到这个插件，装上之后才发现之前手写 key 那段时间是在浪费生命。

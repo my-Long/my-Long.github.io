@@ -64,7 +64,8 @@ uniapp 官方推荐的方案是媒体查询 + 类名：
 
 直接报错。
 
-![uniapp-error.png](/images/uniapp-error.png){: .shadow .rounded-10 w='1696' h='384' }
+![uniapp-error.png](/images/uniapp-error-light.png){: .shadow .rounded-10 w='1696' h='384' .light }
+![uniapp-error-dark](/images/uniapp-error-dark.png){: .shadow .rounded-10 w='1696' h='384' .dark }
 
 查了一下，原因很简单：SCSS 变量是编译时处理的，媒体查询里定义的变量，作用域就锁死在那个块里，外部访问不到。
 

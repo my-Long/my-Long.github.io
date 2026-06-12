@@ -26,7 +26,8 @@ pnpm create vite@latest vue3-ts-app --template vue-ts
 pnpm install
 ```
 
-![vue3-template.png](/images/vue3-template.png){: .shadow .rounded-10 w='884' h='412' }
+![vue3-template.png](/images/vue3-template-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![vue3-template-dark](/images/vue3-template-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 ## 布局：layout 组件 + router-view
 
@@ -67,7 +68,8 @@ pnpm install
 }
 ```
 
-![vue3-layout.png](/images/vue3-layout.png){: .shadow .rounded-10 w='884' h='412' }
+![vue3-layout.png](/images/vue3-layout-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![vue3-layout-dark](/images/vue3-layout-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 ## 路由配置，以及 @ 别名的坑
 
@@ -648,38 +650,48 @@ router.beforeEach((to, from, next) => {
 
 不用插件的话，template 里写 `{{ $t('home.title') }}`，完全不知道这个 key 对应什么内容，时间长了根本不知道在维护什么：
 
-![lang-temp.png](/images/lang-temp.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-temp.png](/images/lang-temp-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-temp-dark](/images/lang-temp-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 装了 i18n Ally 之后：
 
 捕捉需要翻译的内容：
 
-![lang-tem1.png](/images/lang-tem1.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem1.png](/images/lang-tem1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem1-dark](/images/lang-tem1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 提取文案，生成 key：
 
-![lang-tem2.png](/images/lang-tem2.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem2.png](/images/lang-tem2-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem2-dark](/images/lang-tem2-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 生成路径（我用模块区分，手动改成 `home.ni-hao`）：
 
-![lang-tem3.png](/images/lang-tem3.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem3.png](/images/lang-tem3-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem3-dark](/images/lang-tem3-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 替换内容，template 里选第一个：
 
-![lang-tem4.png](/images/lang-tem4.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem4.png](/images/lang-tem4-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem4-dark](/images/lang-tem4-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 配置基准语言和可视语言（我都设成 `cn`，代码里直接看到中文而不是 key）：
 
-![lang-tem5.png](/images/lang-tem5.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem5.png](/images/lang-tem5-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem5-dark](/images/lang-tem5-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 效果：
 
-![lang-tem6.png](/images/lang-tem6.png){: .shadow .rounded-10 w='884' h='412' }
-![lang-tem7.png](/images/lang-tem7.png){: .shadow .rounded-10 w='884' h='412' }
-![lang-tem8.png](/images/lang-tem8.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem6.png](/images/lang-tem6-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem6-dark](/images/lang-tem6-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
+![lang-tem7.png](/images/lang-tem7-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem7-dark](/images/lang-tem7-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
+![lang-tem8.png](/images/lang-tem8-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem8-dark](/images/lang-tem8-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 插件面板里可以看到哪些 key 还没有对应的翻译：
 
-![lang-tem9.png](/images/lang-tem9.png){: .shadow .rounded-10 w='884' h='412' }
+![lang-tem9.png](/images/lang-tem9-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![lang-tem9-dark](/images/lang-tem9-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 鼠标放到未翻译的字段上，弹窗里点编辑直接填英文，不需要自己在 JSON 文件里找对应位置。
