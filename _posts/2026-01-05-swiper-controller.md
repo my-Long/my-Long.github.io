@@ -152,7 +152,8 @@ const initSwiper = () => {
 };
 ```
 
-![swiper-demo.png](/images/swiper-demo.png){: .shadow .rounded-10 w='884' h='412' }
+![swiper-demo.png](/images/swiper-demo-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![swiper-demo-dark](/images/swiper-demo-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 如果偏移量足够大，大到把两侧的内容都挤出去，就只剩中间一项可见了。
 

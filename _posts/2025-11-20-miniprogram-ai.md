@@ -143,7 +143,8 @@ tags: [uniapp,ai]
 
 布局完成后的效果：
 
-![post-ai-1.png](/images/post-ai-1.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+![post-ai-1.png](/images/post-ai-1-light.png){: .shadow .rounded-10 w='884' h='412' .w-50 .light }
+![post-ai-1-dark](/images/post-ai-1-dark.png){: .shadow .rounded-10 w='884' h='412' .w-50 .dark }
 
 ## 发送消息和接收流式数据
 
@@ -386,13 +387,16 @@ onLoad(() => {
 
 **复制消息**是其中难点最多的一个。长按弹出复制按钮，弹窗的定位要处理三种情况：消息被顶部截断时弹窗要在消息内部靠上，消息较短时弹窗要在消息上方或下方，消息较长且点击位置在中间时弹窗要悬在内部。
 
-![post-ai-4.png](/images/post-ai-4.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+![post-ai-4.png](/images/post-ai-4-light.png){: .shadow .rounded-10 w='884' h='412' .w-50 .light }
+![post-ai-4-dark](/images/post-ai-4-dark.png){: .shadow .rounded-10 w='884' h='412' .w-50 .dark }
 _弹窗在消息内部顶部_
 
-![post-ai-5.png](/images/post-ai-5.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+![post-ai-5.png](/images/post-ai-5-light.png){: .shadow .rounded-10 w='884' h='412' .w-50 .light }
+![post-ai-5-dark](/images/post-ai-5-dark.png){: .shadow .rounded-10 w='884' h='412' .w-50 .dark }
 _弹窗在消息底部_
 
-![post-ai-6.png](/images/post-ai-6.png){: .shadow .rounded-10 w='884' h='412' .w-50 }
+![post-ai-6.png](/images/post-ai-6-light.png){: .shadow .rounded-10 w='884' h='412' .w-50 .light }
+![post-ai-6-dark](/images/post-ai-6-dark.png){: .shadow .rounded-10 w='884' h='412' .w-50 .dark }
 _弹窗在消息内部_
 
 **禁用发送**：AI 还没回复时禁用发送按钮，否则可能出现多条 AI 消息几乎同时在跑的情况。

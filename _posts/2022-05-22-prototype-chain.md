@@ -18,7 +18,8 @@ tags: [prototype]
 
 下面我们开始对他们的关系进行梳理，看这张图，理解 new。
 
-![post-prototype1.png](/images/post-prototype1.png){: .rounded-10 w='2192' h='878' }
+![post-prototype1.png](/images/post-prototype1-light.png){: .rounded-10 w='2192' h='878' .light }
+![post-prototype1-dark](/images/post-prototype1-dark.png){: .rounded-10 w='2192' h='878' .dark }
 
 比如说我们有一个普通函数 `obj`，我们将通过 new 这个函数，创造一个对象（实例）。
 
@@ -56,7 +57,8 @@ const newObj = new obj();
 
 「**原型，即 prototype 是一个普通的 Object 对象**」
 
-![post-prototype2.png](/images/post-prototype2.png){: .rounded-10 w='2458' h='368'}
+![post-prototype2.png](/images/post-prototype2-light.png){: .rounded-10 w='2458' h='368' .light }
+![post-prototype2-dark](/images/post-prototype2-dark.png){: .rounded-10 w='2458' h='368' .dark }
 
 比如 `text` 函数，它的原型（暂且称为 obj），即伪代码`obj = test.prototype`，`obj.constructor = test`
 
@@ -67,7 +69,8 @@ console.log(test.prototype.constructor);
 console.log(test.prototype.constructor === test);
 ```
 
-![post-prototype3.png](/images/post-prototype3.png){: .shadow .rounded-10 w='622' h='240' }
+![post-prototype3.png](/images/post-prototype3-light.png){: .shadow .rounded-10 w='622' h='240' .light }
+![post-prototype3-dark](/images/post-prototype3-dark.png){: .shadow .rounded-10 w='622' h='240' .dark }
 
 ### 隐式原型
 
@@ -82,7 +85,8 @@ const a = new Object();
 console.log("a", a.__proto__ === Object.prototype);//true
 ```
 
-![post-prototype4.png](/images/post-prototype4.png){: .rounded-10 w='878' h='734' .right .w-50}
+![post-prototype4.png](/images/post-prototype4-light.png){: .rounded-10 w='878' h='734' .right .w-50 .light }
+![post-prototype4-dark](/images/post-prototype4-dark.png){: .rounded-10 w='878' h='734' .right .w-50 .dark }
 得到实例对象和构造函数之间的关系后，我们可以做一些方便的操作。先看一个图。
 
 
@@ -114,7 +118,8 @@ console.log(a.__proto__.sayHi === b.__proto__.sayHi); // true
 
 通过上面 「__proto__」和构造函数的关系，其实已经是就引出原型链了。
 
-![post-prototype5.png](/images/post-prototype5.png){: .shadow .rounded-10 w='1334' h='828' }
+![post-prototype5.png](/images/post-prototype5-light.png){: .shadow .rounded-10 w='1334' h='828' .light }
+![post-prototype5-dark](/images/post-prototype5-dark.png){: .shadow .rounded-10 w='1334' h='828' .dark }
 
 ```js
 function Obj() {}
