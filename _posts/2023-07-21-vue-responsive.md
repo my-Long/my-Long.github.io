@@ -197,7 +197,8 @@ fn();
 state.a = "gag"; //修改
 ```
 
-![post-pic1.png](/images/post-pic1.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic1.png](/images/post-pic1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic1-dark](/images/post-pic1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### `Proxy` 边界处理
 
@@ -545,7 +546,8 @@ function fn() {
 fn();
 ```
 
-![post-pic2.png](/images/post-pic2.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic2.png](/images/post-pic2-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic2-dark](/images/post-pic2-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 读到了 `length` 和 `数组索引`，没问题。依赖重复收集的事后面再说。
 
@@ -556,7 +558,8 @@ for (const item of state) {
 }
 ```
 
-![post-pic3.png](/images/post-pic3.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic3.png](/images/post-pic3-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic3-dark](/images/post-pic3-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组的 `includes()`
 
@@ -567,7 +570,8 @@ function fn() {
 fn();
 ```
 
-![post-pic4.png](/images/post-pic4.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic4.png](/images/post-pic4-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic4-dark](/images/post-pic4-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组的 `lastIndexOf()`
 
@@ -578,7 +582,8 @@ function fn() {
 fn();
 ```
 
-![post-pic5.png](/images/post-pic5.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic5.png](/images/post-pic5-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic5-dark](/images/post-pic5-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组中含有对象
 
@@ -593,7 +598,8 @@ function fn() {
 fn();
 ```
 
-![post-pic6.png](/images/post-pic6.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic6.png](/images/post-pic6-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic6-dark](/images/post-pic6-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 按理说应该是能找到 `{}` 的，但是实际上并没有。在查找的时候，是在源对象 `arr` 里查找还是在响应对象 `state` 里查找？ 答案是：在源对象 `arr` 里查找。 但是这里明显是在 `state` 里查找。
 
@@ -866,7 +872,8 @@ export function track(target, type, key) {
 
 读起来就是，哪个函数依赖哪个对象的哪个属性的读取行为，那 dep 是一个集合，就会保留很多个函数。
 
-![post-pic7.png](/images/post-pic7.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic7.png](/images/post-pic7-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic7-dark](/images/post-pic7-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 在 `effect.js` 中实现 `map`，进而处理依赖收集和派发更新。
 
@@ -1071,7 +1078,8 @@ export function effect(fn) {
 
 到此，一个基本的数据结构就建立好了。当响应式数据被读取时，会触发 `track` 函数，建设「数据结构」。
 
-![post-pic8.png](/images/post-pic8.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic8.png](/images/post-pic8-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic8-dark](/images/post-pic8-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 派发更新
 
@@ -1114,7 +1122,8 @@ return effectFn;
 这是基本的一个结构，收集和派发的属性是相对应的，比如说之前是 `get` 动作，存了一些函数在 A 集合。现在是 `add` 动作，那应该去哪个集合拿函数呢？`add` 动作也触发了 `has`，`has` 也存了一些函数在 B 集合。
 
 因此，不确定集合，就得有个映射关系，把这些函数集合都拿到，然后遍历，找到里面的函数，依次执行。
-![post-pic9.png](/images/post-pic9.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic9.png](/images/post-pic9-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic9-dark](/images/post-pic9-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 派发更新时，需要根据操作类型，找到对应的依赖收集的函数集合。
 
@@ -1610,7 +1619,8 @@ state.a++;
 console.log("sum.value", sum.value);
 ```
 
-![post-pic10.png](/images/post-pic10.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic10.png](/images/post-pic10-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic10-dark](/images/post-pic10-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 `state.a`的值变化后，依赖发生变化，但是值却还是之前的值。因为`dirty`变量变为`false`，不再依赖收集。依赖发生变化后，`dirty`应该变为`true`。
 
 ```javascript

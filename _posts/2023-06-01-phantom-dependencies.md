@@ -12,7 +12,8 @@ tags: [pnpm]
 
 **为什么 npm 里会出这个问题？** npm（以及 yarn）为了避免依赖嵌套导致的路径过长和包重复，会把所有依赖——不管层级多深——全部平铺到 `node_modules` 的一级目录下。A 依赖 B，B 就和 A 并排放在那里。结果就是你虽然没有声明 B，但 B 在 `node_modules` 里，当然可以直接 import。
 
-![image.png](/images/post-content-dependent.png){: .shadow .rounded-10  .w-75 w="2220" h="818" }
+![image.png](/images/post-content-dependent-light.png){: .shadow .rounded-10  .w-75 w="2220" h="818" .light }
+![image.png](/images/post-content-dependent-dark.png){: .shadow .rounded-10  .w-75 w="2220" h="818" .dark }
 
 这带来两个潜在的问题。
 
@@ -22,6 +23,7 @@ tags: [pnpm]
 
 pnpm 从根上解决了这个问题。它在 `node_modules` 里建一个 `.pnpm` 仓库，所有依赖（直接的和间接的）都存在这里，但这个仓库不是 `node_modules` 的子文件夹，代码里没法直接引用它。然后 pnpm 重新生成一个树形目录，只把 `package.json` 里声明的依赖放到顶层，以符号链接的形式，不占额外磁盘空间。你能引用什么，完全由自己的依赖声明决定。
 
-![image.png](/images/post-content-dependent2.png){: .shadow .rounded-10  .w-75 w="2180" h="714" }
+![image.png](/images/post-content-dependent2-light.png){: .shadow .rounded-10  .w-75 w="2180" h="714" .light }
+![image.png](/images/post-content-dependent2-dark.png){: .shadow .rounded-10  .w-75 w="2180" h="714" .dark }
 
 换 pnpm 的第一天，几个项目跑起来就报错——缺了一堆之前没有显式声明但一直在偷用的包。装上去，问题都解决了。现在反而觉得这是好事：逼着你把依赖声明清楚，不再靠运气。

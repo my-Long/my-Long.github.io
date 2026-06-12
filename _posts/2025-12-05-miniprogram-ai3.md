@@ -14,7 +14,8 @@ tags: [uniapp, ai]
 
 在 [控制台](https://console.xfyun.cn/services/cbm) 创建应用，拿到 `APIPassword`：
 
-![keda.png](/images/keda.png){: .shadow .rounded-10 w='884' h='412' }
+![keda.png](/images/keda-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![keda.png](/images/keda-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 依赖很简单：`node-fetch` 发请求，`readline` 处理数据流，`dotenv` 读环境变量。环境变量放 `.env`：
 
@@ -255,7 +256,8 @@ const onStopSuccess = (text) => {
 
 ## 键盘上移这个坑
 
-![page.png](/images/page.png){: .shadow .rounded-10 w='884' h='412' .w-50 .right}
+![page.png](/images/page-light.png){: .rounded-10 w='884' h='412' .w-50 .right .light }
+![page.png](/images/page-dark.png){: .rounded-10 w='884' h='412' .w-50 .right .dark }
 
 `input` 组件默认 `adjust-position` 为 `true`，键盘弹起时会把整个页面往上推——推出容器，布局就乱了。改成 `false` 呢，键盘直接盖住输入框，也不行。
 
