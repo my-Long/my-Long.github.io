@@ -6,45 +6,45 @@ categories: [JS, Engineering]
 tags: [git]
 ---
 
->并不适合阅读的个人文档。
+代码提交错了，要怎么回退？这里有两个完全不同的工具。
 
-# **git revert** 和 **git reset** 的区别
+**`git revert`** 是往前走——它不删除那次提交，而是创建一个新的 commit，把指定的那次 commit 的改动反向应用。历史记录里两次 commit 都在，只是新的一次把旧的抵消掉了。适合已经 push 出去的提交，不影响别人的历史。
 
-**sourceTree** 中 **revert** 译为**`提交回滚`**，作用为忽略你指定的版本，然后提交一个新的版本。新的版本中已近删除了你所指定的版本。
+**`git reset`** 是往回走——直接把 HEAD 移回指定的 commit，有两种力度：
 
-**reset** 为 **重置到这次提交**，将内容重置到指定的版本。`git reset` 命令后面是需要加2种参数的：`–-hard` 和 `–-soft`。这条命令默认情况下是 `-–soft`。
+```bash
+git reset --soft HEAD^   # 回到上一个 commit，改动保留在暂存区
+git reset --hard HEAD^   # 回到上一个 commit，改动直接丢弃
+```
 
-执行上述命令时，这该条commit号之 后（时间作为参考点）的所有commit的修改都会退回到git缓冲区中。使用`git status` 命令可以在缓冲区中看到这些修改。而如果加上`-–hard`参数，则缓冲区中不会存储这些修改，git会直接丢弃这部分内容。可以使用 `git push origin HEAD --force` 强制将分区内容推送到远程服务器。
+`--soft` 温柔，改动还在，只是变成未提交的状态；`--hard` 粗暴，直接清掉。想回到指定 commit 可以用 commit id：
 
+```bash
+git reset --hard <commit_id>
+```
 
-#### 代码回退 
+reset 完如果要同步到远程，要加 `--force`：
 
-默认参数 `-soft`,所有commit的修改都会退回到git缓冲区
-参数`--hard`，所有commit的修改直接丢弃
+```bash
+git push origin HEAD --force
+```
 
-	$ git reset --hard HEAD^ 		回退到上个版本
-	$ git reset --hard commit_id	退到/进到 指定commit_id
-推送到远程	
+---
 
-	$ git push origin HEAD --force
-	
-	
-#### 可以吃的后悔药->版本穿梭
+reset 过头了怎么办？`git reflog` 记录了你每一次操作：
 
-当你回滚之后，又后悔了，想恢复到新的版本怎么办？
+```bash
+$ git reflog
 
-用`git reflog`打印你记录你的每一次操作记录
+c7edbfe HEAD@{0}: reset: moving to c7edbfefab1bdbef6cb60d2a7bb97aa80f022687
+470e9c2 HEAD@{1}: reset: moving to 470e9c2
+b45959e HEAD@{2}: revert: Revert "add img"
+```
 
-	$ git reflog
-	
-	输出：
-	c7edbfe HEAD@{0}: reset: moving to c7edbfefab1bdbef6cb60d2a7bb97aa80f022687
-	470e9c2 HEAD@{1}: reset: moving to 470e9c2
-	b45959e HEAD@{2}: revert: Revert "add img"
-	470e9c2 HEAD@{3}: reset: moving to 470e9c2
-	2c26183 HEAD@{4}: reset: moving to 2c26183
-	0f67bb7 HEAD@{5}: revert: Revert "add img"
-	
-找到你操作的id如：`b45959e`，就可以回退到这个版本
-	
-	$ git reset --hard b45959e
+找到你想恢复的那个 id，再 reset 回去就行：
+
+```bash
+git reset --hard b45959e
+```
+
+reflog 是本地操作记录，不会推送到远程，丢了就真丢了——所以 `--hard` 之前要想清楚。

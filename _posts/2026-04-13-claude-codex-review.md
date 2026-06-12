@@ -56,25 +56,31 @@ tags: [ai, claude, codex]
 
 `Codex` 大概 1 分钟就完成了，终端格式如下：
 
-![codex1.png](/images/codex1.png){: .shadow .rounded-10 w='884' h='412' }
+![codex1.png](/images/codex1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![codex1-dark](/images/codex1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 只生成一个 `index.html`，倒计时结束后通过条件渲染展示表单：
 
-![codex2.png](/images/codex2.png){: .shadow .rounded-10 w='300' }
+![codex2.png](/images/codex2-light.png){: .shadow .rounded-10 w='300' .light }
+![codex2-dark](/images/codex2-dark.png){: .shadow .rounded-10 w='300' .dark }
 
-![codex3.png](/images/codex3.png){: .shadow .rounded-10 w='300' }
+![codex3.png](/images/codex3-light.png){: .shadow .rounded-10 w='300' .light }
+![codex3-dark](/images/codex3-dark.png){: .shadow .rounded-10 w='300' .dark }
 
 有两个小问题：表单页一开始无法滚动，是我提醒之后才补上的；验证码的提示弹窗出现在页面下方，交互细节不太自然。整体风格是先快速做出来，iterate 着改。
 
 `Claude` 花了大概 8 分钟，终端格式如下：
 
-![claude1.png](/images/claude1.png){: .shadow .rounded-10 w='884' h='412' }
+![claude1.png](/images/claude1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![claude1-dark](/images/claude1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 按要求生成了两个页面，`index.html` 和 `form.html`，倒计时结束后跳转到 `form.html`：
 
-![claude2.png](/images/claude2.png){: .shadow .rounded-10 w='300' }
+![claude2.png](/images/claude2-light.png){: .shadow .rounded-10 w='300' .light }
+![claude2-dark](/images/claude2-dark.png){: .shadow .rounded-10 w='300' .dark }
 
-![claude3.png](/images/claude3.png){: .shadow .rounded-10 w='300' }
+![claude3.png](/images/claude3-light.png){: .shadow .rounded-10 w='300' .light }
+![claude3-dark](/images/claude3-dark.png){: .shadow .rounded-10 w='300' .dark }
 
 页面和逻辑上没发现明显缺陷，基本符合需求。
 
@@ -88,11 +94,14 @@ tags: [ai, claude, codex]
 
 现在 `OpenRouter` 里还有一点余额，偶尔用来解释某些方法时会开 `Claude`，但模型就不选 `Sonnet` 了，真的太贵。下面这个例子，只是一个很简单的需求——「创建加入我们页面，暂时添加一些示例内容」，然后读取 `skill`，执行对应命令：
 
-![post_claude_vscode.png](/images/post_claude_vscode.png){: .shadow .rounded-10 w='884' h='412' }
+![post_claude_vscode.png](/images/post_claude_vscode-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post_claude_vscode-dark](/images/post_claude_vscode-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 几个文件，每个文件百行左右，就消耗了七块钱左右：
 
-![post_openrouter_cost.png](/images/post_openrouter_cost.png){: .shadow .rounded-10 w='884' h='412' }
+![post_openrouter_cost.png](/images/post_openrouter_cost-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post_openrouter_cost.png](/images/post_openrouter_cost-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
+
 
 用不起。还是老老实实用 `Codex`。
 

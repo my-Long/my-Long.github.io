@@ -6,32 +6,11 @@ categories: [Vue]
 tags: [vue, optimization]
 ---
 
-对于 Vue3 的性能提升，涉及到比较多的方面，包括渲染、更新、编译、内存管理等。那就结合官方的介绍与实践，来看看 Vue3 在性能方面的优化。
+Vue3 的性能提升来自好几个方面：响应式系统换成了 Proxy（比 defineProperty 更高效）、支持 tree-shaking（用不到的功能不打包）、虚拟 DOM diff 算法更快、加了 Teleport 和 Fragments。
 
-### 总体优化
+其中最值得深入的是**编译时优化**——Vue3 的编译器能区分静态和动态内容，在构建阶段做大量分析，让运行时少干很多活。
 
-- 响应式系统
-
-  Vue 3 使用 Proxy 替代 Vue 2 中的 Object.defineProperty，这使得响应式系统更高效，能更好地追踪依赖。
-  进行惰性的计算，只有在需要时才会访问响应式属性，减少不必要的计算和开销
-
-- 更小的包体积
-
-  Vue 3 的体积比 Vue 2 小，尤其是在 tree-shaking 的支持下，未使用的功能可以在构建时被剔除，从而减小最终的包体积
-
-- 快的虚拟 DOM
-
-  虚拟 DOM 渲染算法进行了优化，通过更高效的 diff 算法，提升了组件渲染的速度。
-
-- Teleport 和 Fragments
-
-  Teleport 允许将组件的渲染结果插入到 DOM 的其他位置，提升了灵活性。Fragments 允许组件返回多个根节点，减少了不必要的包裹元素，提高了性能。
-
-- 编译时优化
-
-  Vue 3 对模板进行了编译优化，将一些静态内容在编译时进行分析，减少运行时的计算。
-
-### 编译时优化
+## 编译时优化
 
 Vue 在编译过程，会把模板转换成渲染函数（render function），渲染函数会在每次数据更新时执行，从而更新视图。Vue3 的处理很智能，能区分「静态节点」和「动态节点」。
 
@@ -127,10 +106,12 @@ render(ctx,_ceche){
 ```
 
 vue2 在对比新旧树的时候，并不知道哪些节点是静态的，哪些是动态的。因此只能一层一层比较，这就浪费了大部分时间在对比「静态节点」上。
-![post-content-tree1.png](/images/post-content-tree1.png){: .shadow .rounded-10 w='884' h='412' }
+![post-content-tree1.png](/images/post-content-tree1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-content-tree1-dark](/images/post-content-tree1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 vue3 的编译器就格外强大了，他会对每个节点进行标记，标记出哪些是静态的，哪些是动态的。
-![post-content-tree2.png](/images/post-content-tree2.png){: .shadow .rounded-10 w='884' h='412' }
+![post-content-tree2.png](/images/post-content-tree2-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-content-tree2-dark](/images/post-content-tree2-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 编译器会把所有的「动态节点」提取到根节点form 里。form 节点里有一个数组，记录了后代节点中哪些是动态的。那么在对比的时候，不是整棵树进行对比，而是直接找到根节点，也就是 block 节点。在对比时，循环数组进行对比，即只对比动态节点，越过了静态节点。而树不稳定时，不稳定的那个分支会自动变成一个 block 。
 

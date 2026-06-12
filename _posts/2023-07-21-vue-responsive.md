@@ -6,31 +6,11 @@ categories: [Vue]
 tags: [vue]
 ---
 
-## 前言
+响应式最直观的说法是「数据驱动视图」，数据变了，视图自动更新。但仔细想想，「视图」是什么？是用户看到的页面——在 web 里是 DOM，在 Vue 里是 `render` 函数生成的虚拟 DOM。所以说「数据和视图的关系」，其实是在说「数据和 render 函数的关系」。
 
-响应式最直观的解释就是：数据变化时，视图会自动更新，也就是「数据驱动视图」。换一句话说，响应式里的关系是 「数据」 和「视图」 之间的关系。
+再往大了说，响应式不一定体现在页面上——有些数据根本不渲染，但它变化时，依赖它的计算属性或 watch 会重新跑。所以更准确的描述是：**「数据」和「函数」之间的关系**。
 
-### 视图
-
-什么是视图？应该是用户看到的页面，也确实如此。但是，在计算机里，并没有所谓的「页面」。在「web」中，我们看到视图，就是 dom 元素，不仅如此，页面上的数字，文字也是视图的一部分。在 vue 中，是使用 虚拟 dom 来映射成 dom 的，而虚拟 dom 本身就是 js 对象。
-
-因此，我们所说的页面，包含了字符串、对象、数字等等东西，而数据变动后，恰恰就是这些东西发生了变化。而这些「东西」我们也称为「数据」。
-
-这似乎是数据与数据之间的关系。在表格中，我们可以看到数据与数据之间的关系，比如说 D 列 求和，像是 D 列数据与求和结果的关系，但仔细想想，求和是有公式进行的，所以说：「在表格中，是数据与求和公式之间的关系」更为恰当。
-
-求和公式还有另一种叫法 —— 求和函数。因此是「数据」与「函数」之间的关系」。这样，如果非得说「视图」，但视图是 render 函数渲染出来的，所以单单谈某个响应数据，比如说 name 改变了，页面上的 name 自动更新，那就可以说：「数据与 render 函数之间的关系」。
-
-但是，响应式不一定是体现在页面上，有些数据并不渲染在页面上。所以广义的说，还是 「数据」 和「函数」 之间的关系。所以响应式里说的「视图」，应该是「函数」。
-
-### 数据
-
-在 Vue 中，如一个 `.vue` 组件里，有很多的数据，那「数据与视图之间的关系」中的「数据」是指全部数据吗？
-
-如 name 改变了，页面上的 name 自动更新，那 name 就是数据。 也就是说，用到的数据才是响应式概念里所说的数据。而对于「用到」的理解，也很容易明白，如一个函数用有 `if` 判断，那个被用到的数据，才能称为「响应式数据」。所以可以这么说，一个函数与什么样的数据产生关联，取决于函数的运行过程。
-
-这是从函数执行过程去分析的，但是这种机制并不合理，函数是固定的，而里面的数据也是固定的，响应式数据的判定并不灵活。响应式数据应该由用户决定，让用户决定什么样的数据与函数产生关联，而不是由函数自身去判断。
-
-如，用户把 name 打上标记，意为「响应式数据」，让这个 name 与函数产生关联。那么在 `vue` 内部可以这样来实现：
+那哪些数据算响应式？不是组件里所有数据，而是被「标记」过的那些。Vue 把这个标记权交给用户：你用 `reactive()` 或 `ref()` 声明，Vue 才会追踪。用户把 name 打上标记，让这个 name 与函数产生关联。那么在 `vue` 内部可以这样来实现：
 
 ```javascript
 let a = true,
@@ -53,13 +33,9 @@ let a = true,
 
 所以，响应式的理解应该是：「函数」与「函数运行过程中用到的`标记数据`」之间的关联。
 
-## 正文
+明白了这个，接下来的问题就是：怎么知道数据被读了还是被修改了？改了之后怎么通知函数重新执行？
 
-知晓了响应式的概念，那数据与函数之间是如何发生关联的，又是如何影响到视图的更新呢？。
-
-不仅如此，虽然已经给数据打上标记了，但是如何知晓这个数据被读了或者被修改了？另外，这个数据被修改了，如何通知到函数呢？函数又如何从新执行呢？
-
-### 数据的读写介绍
+## 数据的拦截：Object.defineProperty vs Proxy
 
 在 js 中，有两种方式可以对数据进行监听，分别是 `Object.defineProperty` 和 `Proxy`。
 
@@ -107,13 +83,7 @@ let proxy = new Proxy(obj, handler);
 proxy.name = "Your";
 ```
 
-这两种方式都可以用来监听对象的属性变化，但是它们的实现方式不同。
-
-`Object.defineProperty` 监听的是对象的属性，而 `Proxy` 监听的是整个对象。
-
-`Object.defineProperty` 监听的是对象的属性，但是只能监听对象的属性，不能监听数组的索引。
-
-`Proxy` 监听的是整个对象，可以监听数组的索引。
+两者都能拦截属性读写，区别在于：`Object.defineProperty` 只能监听对象的具体属性，监听不了数组索引的变化；`Proxy` 代理的是整个对象，数组也能拦截。Vue3 用的是 `Proxy`。
 
 #### `reactive` 基本实现
 
@@ -227,7 +197,8 @@ fn();
 state.a = "gag"; //修改
 ```
 
-![post-pic1.png](/images/post-pic1.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic1.png](/images/post-pic1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic1-dark](/images/post-pic1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### `Proxy` 边界处理
 
@@ -288,7 +259,7 @@ state.a = "gag"; //修改
   }
   ```
 
-到此，边界条件基本处理完毕，考虑到 `reactive` 函数比较臃肿，可以把 `Proxy` 部分抽离出来：
+`reactive` 现在比较臃肿，把 `Proxy` 的处理抽到单独的 `handlers.js` 里：
 
 ```javascript
 // handlers.js
@@ -575,7 +546,8 @@ function fn() {
 fn();
 ```
 
-![post-pic2.png](/images/post-pic2.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic2.png](/images/post-pic2-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic2-dark](/images/post-pic2-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 读到了 `length` 和 `数组索引`，没问题。依赖重复收集的事后面再说。
 
@@ -586,7 +558,8 @@ for (const item of state) {
 }
 ```
 
-![post-pic3.png](/images/post-pic3.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic3.png](/images/post-pic3-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic3-dark](/images/post-pic3-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组的 `includes()`
 
@@ -597,7 +570,8 @@ function fn() {
 fn();
 ```
 
-![post-pic4.png](/images/post-pic4.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic4.png](/images/post-pic4-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic4-dark](/images/post-pic4-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组的 `lastIndexOf()`
 
@@ -608,7 +582,8 @@ function fn() {
 fn();
 ```
 
-![post-pic5.png](/images/post-pic5.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic5.png](/images/post-pic5-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic5-dark](/images/post-pic5-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 数组中含有对象
 
@@ -623,7 +598,8 @@ function fn() {
 fn();
 ```
 
-![post-pic6.png](/images/post-pic6.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic6.png](/images/post-pic6-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic6-dark](/images/post-pic6-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 按理说应该是能找到 `{}` 的，但是实际上并没有。在查找的时候，是在源对象 `arr` 里查找还是在响应对象 `state` 里查找？ 答案是：在源对象 `arr` 里查找。 但是这里明显是在 `state` 里查找。
 
@@ -872,8 +848,6 @@ export function track(target, type, key) {
 }
 ```
 
-到此，基本的数组的「读」和「写」的处理就完成了。
-
 ### 依赖收集与派发更新
 
 前面部分已经实现了监听数据的「读」和「写」，涉及了「依赖收集」和「派发更新」，但是这两个方法并没有实现。
@@ -898,7 +872,8 @@ export function track(target, type, key) {
 
 读起来就是，哪个函数依赖哪个对象的哪个属性的读取行为，那 dep 是一个集合，就会保留很多个函数。
 
-![post-pic7.png](/images/post-pic7.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic7.png](/images/post-pic7-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic7-dark](/images/post-pic7-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 在 `effect.js` 中实现 `map`，进而处理依赖收集和派发更新。
 
@@ -1103,7 +1078,8 @@ export function effect(fn) {
 
 到此，一个基本的数据结构就建立好了。当响应式数据被读取时，会触发 `track` 函数，建设「数据结构」。
 
-![post-pic8.png](/images/post-pic8.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic8.png](/images/post-pic8-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic8-dark](/images/post-pic8-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 #### 派发更新
 
@@ -1146,7 +1122,8 @@ return effectFn;
 这是基本的一个结构，收集和派发的属性是相对应的，比如说之前是 `get` 动作，存了一些函数在 A 集合。现在是 `add` 动作，那应该去哪个集合拿函数呢？`add` 动作也触发了 `has`，`has` 也存了一些函数在 B 集合。
 
 因此，不确定集合，就得有个映射关系，把这些函数集合都拿到，然后遍历，找到里面的函数，依次执行。
-![post-pic9.png](/images/post-pic9.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic9.png](/images/post-pic9-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic9-dark](/images/post-pic9-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 
 派发更新时，需要根据操作类型，找到对应的依赖收集的函数集合。
 
@@ -1238,9 +1215,9 @@ export function trigger(target, type, key) {
 }
 ```
 
-### 补丁
+### 跑起来发现的几个问题
 
-#### 非必要运行
+#### 多余的重新执行
 
 在运行过程中，发现了一些毛病。
 
@@ -1315,7 +1292,7 @@ export function clearFn(effectFn) {
 
 #### 函数嵌套
 
-到此，「重新收集依赖」的 bug 就搞定了，还有存在一个问题 —— 函数嵌套。
+「重新收集依赖」的问题搞定了，但还有一个——函数嵌套。
 
 ```javascript
 function fn() {
@@ -1642,7 +1619,8 @@ state.a++;
 console.log("sum.value", sum.value);
 ```
 
-![post-pic10.png](/images/post-pic10.png){: .shadow .rounded-10 w='884' h='412' }
+![post-pic10.png](/images/post-pic10-light.png){: .shadow .rounded-10 w='884' h='412' .light }
+![post-pic10-dark](/images/post-pic10-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
 `state.a`的值变化后，依赖发生变化，但是值却还是之前的值。因为`dirty`变量变为`false`，不再依赖收集。依赖发生变化后，`dirty`应该变为`true`。
 
 ```javascript
@@ -1702,7 +1680,7 @@ const effceFn = effect(getter, {
 
 ```
 
-到此，`computed` 就基本实现了。
+`computed` 的核心在 dirty 和 scheduler 的配合：依赖变了不立刻重跑，只打个脏标记；下次有人访问 `.value` 时才真正执行，同时手动触发 track/trigger 保证和外层 effect 的关联。
 
 ```javascript
 import { effect, track, trigger } from "./effect.js";

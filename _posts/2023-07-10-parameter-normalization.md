@@ -5,90 +5,30 @@ date: 2023-07-10 00:00:00 +0800
 categories: [JS, Base]
 ---
 
-参数归一化（Parameter Normalization）是一种在处理数据时常用的技术，旨在将不同范围或不同单位的数据转换为一个统一的标准，使其在分析和建模时更加有效和一致。那在软件开发中如何实现参数归一化呢？
-
-比如说有一个函数，功能很简单，把传入的一个日期进行格式化，返回一个字符串。
+写一个日期格式化函数，第二个参数 `formatter` 想支持好几种传法：
 
 ```js
-/**
- * @description 格式化日期
- * @param {Date} date 日期
- * @param {string} formatter 格式化字符串
- * @param {boolean} isPad 是否补零
- */
-function formate(date, formatter, isPad) {}
+formate(new Date(), "date");              // 2023-7-10
+formate(new Date(), "datetime");          // 2023-7-10 8:00:30
+formate(new Date(), "date", true);        // 2023-07-10（补零）
+formate(new Date(), "datetime", true);    // 2023-07-10 08:00:30（补零）
+formate(new Date(), "yyyy年MM月dd日 HH:mm:ss");  // 自定义格式
+formate(new Date("2023/7/10"), function(dateInfo) {  // 完全自定义逻辑
+  const { year } = dateInfo;
+  const thisYear = new Date().getFullYear();
+  if (year < thisYear) return `${thisYear - year}年前`;
+  if (year > thisYear) return `${year - thisYear}年后`;
+  return "今年";
+});
 ```
 
-但是格式化的方式有很多，比如可能调用的方式有：
+`formatter` 可以是字符串简写、自定义格式模板、或者一个函数。如果在函数内部把这几种情况全用 if/else 铺开处理，代码会很乱。
 
-- 2023-7-10
-  传入一个日期，我要得到的仅仅是一个日期
-  ```js
-  formate(new Date(), "date");
-  ```
-- 2023-7-10 8:00:30
-  传入一个日期，我要得到的既有日期，又有时间
-  ```js
-  formate(new Date(), "datetime");
-  ```
-- 2023-07-10
-  传入一个日期，我要得到的仅仅是一个日期，并且在前面补零。
+想了一下，有没有某种形式能涵盖所有情况？**函数可以。** 字符串简写 `"date"` 可以转成函数，自定义格式模板也可以转成函数，函数本身就是函数。如果先把所有传入的格式统一转成函数，再执行，后面的逻辑就不用管参数是什么形式进来的了。这就是「参数归一化」：在函数入口把各种形式收敛成一种内部表示。
 
-  ```js
-  formate(new Date(), "date", true);
-  ```
-
-- 2023-07-10 08:00:30
-  传入一个日期，我要得到的既有日期，又有时间，并且在前面补零。
-
-  ```js
-  formate(new Date(), "datetime", true);
-  ```
-
-- 2023 年 7 月 10 日 13:12:35
-  传入一个日期，我要得到的既有日期，又有时间，并且按照指定的格式进行格式化。
-
-  ```js
-  formate(new Date(), "yyyy年MM月dd日 HH:mm:ss");
-  ```
-
-- 2023 年 7 月 10 日 13:12:35
-  传入一个日期和一个函数，函数对前面的日期进行定制格式化
-  ```js
-  formate(new Date("2023/7/10"), function (dateInfo) {
-    const { year } = dateInfo;
-    const thisYear = new Date().getFullYear();
-    if (year < thisYear) {
-      return `${thisYear - year}年前`;
-    } else if (year > thisYear) {
-      return `${year - thisYear}年后`;
-    } else {
-      return "今年";
-    }
-  });
-  ```
-
-`formatter` 参数的格式太多了，如果不处理的话，就需要做很多次判断，代码会变得很冗长，不利于维护。我们可以思考，有没有一种格式是涵盖了其他格式的，又可以很灵活地处理的呢？
-
-很明显，函数，可以把其他的情况都转为函数的形式，这样就可以灵活地处理各种格式了。比如说第一种，是想返回一种格式的日期，那就可以这么处理：
+转换逻辑放在独立的 `_formateNormalize` 里：
 
 ```js
-// 2023-7-10
-function formate(new Date(), (dateInfo)=>{
-  const {...} = dateInfo;
-  return `xxx-x-xx`
-})
-```
-
-同理，其他情况都可以转化为函数的形式，这样就可以灵活地处理各种格式了。因此，我们在函数内部使用一个方法，将所有的情况都转化为函数的形式，这就是「参数归一化」。
-
-```js
-/**
- * @description 参数归一化
- * @param {string | Function} formatter 格式化的内容
- * @param {boolean} isPad 是否补零
- * @returns {Function} 格式化函数
- */
 function _formateNormalize(formatter) {
   if (typeof formatter === "function") {
     return formatter;
@@ -103,7 +43,8 @@ function _formateNormalize(formatter) {
   if (formatter === "datetime") {
     formatter = "yyyy-MM-dd HH:mm:ss";
   }
-  //处理字符串，比如"yyyy年MM月dd日 HH:mm:ss"，将对应位置的替换成具体的值
+
+  // 字符串模板转函数：把 yyyy、MM 等占位符替换成实际值
   function formatFun(dateInfo) {
     const { yyyy, MM, dd, HH, mm, ss } = dateInfo;
     return formatter
@@ -118,11 +59,11 @@ function _formateNormalize(formatter) {
 }
 ```
 
-到此，参数归一化就完成了。在使用的过程中，传入一个格式化字符串，就可以得到一个格式化函数（上面的），然后就可以使用这个函数进行格式化了。
+主函数入口先调归一化，拿到统一的函数形式，后面只跟这一种形式打交道：
 
 ```js
 function formate(date, formatter, isPad) {
-  formatter = _formateNormalize(formatter); // 得到的格式化函数
+  formatter = _formateNormalize(formatter);
 
   const dateInfo = {
     year: date.getFullYear(),
@@ -133,7 +74,6 @@ function formate(date, formatter, isPad) {
     seconds: date.getSeconds(),
   };
 
-  // 字符串化
   dateInfo.yyyy = dateInfo.year.toString();
   dateInfo.MM = dateInfo.month.toString();
   dateInfo.dd = dateInfo.date.toString();
@@ -141,7 +81,6 @@ function formate(date, formatter, isPad) {
   dateInfo.mm = dateInfo.minutes.toString();
   dateInfo.ss = dateInfo.seconds.toString();
 
-  // 补零
   function pad(prop, len) {
     dateInfo[prop] = dateInfo[prop].padStart(len, "0");
   }
@@ -154,9 +93,8 @@ function formate(date, formatter, isPad) {
     pad("ss", 2);
   }
 
-  // 进行格式化
   return formatter(dateInfo);
 }
 ```
 
-到此，整个日期格式化函数就完成了。
+`computed` 的参数处理也是同样的思路——它可以接收函数或者对象 `{ get, set }`，入口先归一化成 getter/setter，后面只用 getter 就行，不再管外面传进来的是什么形式。
