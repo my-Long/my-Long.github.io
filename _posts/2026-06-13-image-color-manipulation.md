@@ -94,3 +94,12 @@ brew install imagemagick
 ```
 
 这篇文章以前的图片都是用这个方法处理的，博客中的图片都存在于 [blog-assets](https://github.com/my-Long/blog-assets)，而脚本也在项目里。
+
+
+### 还是写个GUI方便使用吧
+
+然后吭哧吭哧地写了个项目，实现图片的反色处理，简单的图形界面。一般简单的 「文字+背景」 图片是可以处理的，如果图片色彩太多了，那还是不行的。
+
+![recolor-light.png](/images/renderings-light.png){: w='3156' h='1812' .light }
+![recolor-dark.png](/images/renderings-dark.png){: w='3156' h='1812' .dark }
+_图片颜色修改界面_
