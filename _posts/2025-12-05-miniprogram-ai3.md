@@ -14,8 +14,8 @@ tags: [uniapp, ai]
 
 在 [控制台](https://console.xfyun.cn/services/cbm) 创建应用，拿到 `APIPassword`：
 
-![keda.png](/images/keda-light.png){: .shadow .rounded-10 w='884' h='412' .light }
-![keda.png](/images/keda-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
+![keda.png](/images/keda-light.png){: .macos .shadow  w='884' h='412' .light }
+![keda.png](/images/keda-dark.png){: .macos .shadow  w='884' h='412' .dark }
 
 依赖很简单：`node-fetch` 发请求，`readline` 处理数据流，`dotenv` 读环境变量。环境变量放 `.env`：
 

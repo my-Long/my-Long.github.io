@@ -56,8 +56,8 @@ tags: [ai, claude, codex]
 
 `Codex` 大概 1 分钟就完成了，终端格式如下：
 
-![codex1.png](/images/codex1-light.png){: .shadow .rounded-10 w='884' h='412' .light }
-![codex1-dark](/images/codex1-dark.png){: .shadow .rounded-10 w='884' h='412' .dark }
+![codex1.png](/images/codex1-light.png){: .macos w='884' h='412' .light }
+![codex1-dark](/images/codex1-dark.png){: .macos  w='884' h='412' .dark }
 
 只生成一个 `index.html`，倒计时结束后通过条件渲染展示表单：
 
