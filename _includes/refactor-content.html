@@ -89,6 +89,7 @@
 
     <!-- take out classes -->
     {% assign _wrapper_class = '' %}
+    {% assign _is_macos = false %}
 
     {% if _class %}
       {% assign _remain = _class %}
@@ -99,6 +100,9 @@
 
         {% case c %}
           {% when 'preview-img', 'normal', 'left', 'right', 'light', 'dark' %}
+            {% assign _pick = true %}
+          {% when 'macos' %}
+            {% assign _is_macos = true %}
             {% assign _pick = true %}
           {% else %}
             {% if c contains '-' %}
@@ -111,18 +115,20 @@
 
         {% if _pick %}
           {% assign _remain = _remain | remove: c | strip %}
-          {% assign _wrapper_class = _wrapper_class | append: ' ' | append: c %}
+          {% unless c == 'macos' %}
+            {% assign _wrapper_class = _wrapper_class | append: ' ' | append: c %}
+          {% endunless %}
         {% endif %}
       {% endfor %}
 
-      {% unless _wrapper_class == '' %}
+      {% if _wrapper_class != '' or _is_macos %}
         {% capture _old_class %}class="{{ _class }}"{% endcapture %}
         {% assign _left = _left | remove: _old_class %}
         {% unless _remain == '' %}
           {% capture _new_class %}class="{{ _remain }}"{% endcapture %}
           {% assign _left = _left | append: _new_class %}
         {% endunless %}
-      {% endunless %}
+      {% endif %}
     {% endif %}
 
     {% assign _final_src = null %}
@@ -182,6 +188,38 @@
 
       {% else %}
         <!-- create the image wrapper -->
+        {% if _is_macos %}
+          {% assign _mac_extra_class = '' %}
+          {% if _wrapper_class contains ' light' %}
+            {% assign _mac_extra_class = _mac_extra_class | append: ' light' %}
+            {% assign _wrapper_class = _wrapper_class | remove: ' light' %}
+          {% endif %}
+          {% if _wrapper_class contains ' dark' %}
+            {% assign _mac_extra_class = _mac_extra_class | append: ' dark' %}
+            {% assign _wrapper_class = _wrapper_class | remove: ' dark' %}
+          {% endif %}
+          {% if _wrapper_class contains ' left' %}
+            {% assign _mac_extra_class = _mac_extra_class | append: ' left' %}
+            {% assign _wrapper_class = _wrapper_class | remove: ' left' %}
+          {% endif %}
+          {% if _wrapper_class contains ' right' %}
+            {% assign _mac_extra_class = _mac_extra_class | append: ' right' %}
+            {% assign _wrapper_class = _wrapper_class | remove: ' right' %}
+          {% endif %}
+          {% assign _class_array2 = _wrapper_class | split: ' ' %}
+          {% for c2 in _class_array2 %}
+            {% if c2 contains '-' %}
+              {% assign _start2 = c2 | split: '-' | first %}
+              {% if _start2 == 'w' %}
+                {% assign _mac_extra_class = _mac_extra_class | append: ' ' | append: c2 %}
+                {% assign _wrapper_class = _wrapper_class | remove: c2 | strip %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% assign _mac_start = '<span class="mac-window' | append: _mac_extra_class | append: '"><span class="mac-titlebar"><span class="mac-dot close"></span><span class="mac-dot minimize"></span><span class="mac-dot maximize"></span></span>' %}
+          {% assign _img_content = _img_content | append: _mac_start %}
+        {% endif %}
+
         {% assign _wrapper_start = _final_src
           | default: _src
           | prepend: '<a href="'
@@ -191,7 +229,12 @@
         %}
 
         {% assign _img_content = _img_content | append: _wrapper_start %}
-        {% assign _right = '></a' | append: _right %}
+
+        {% if _is_macos %}
+          {% assign _right = '></a></span' | append: _right %}
+        {% else %}
+          {% assign _right = '></a' | append: _right %}
+        {% endif %}
       {% endif %}
     {% endif %}
 
