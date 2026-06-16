@@ -7,7 +7,6 @@ tags: [swiper,vue,react,component]
 image:
   path: /images/swiper-bg.png
   alt: "Two-way control swiper"
-pin: true
 ---
 
 > 一言难尽。研究了好多天，走了好几条弯路，最后靠一个「意外发现」解决的。
