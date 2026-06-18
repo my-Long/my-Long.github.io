@@ -93,6 +93,7 @@ defineProps({
 
 父组件通过 `provide` 暴露一个 `registerColumn` 方法，用 `<slot />` 触发子组件挂载，子组件挂载时调用这个方法把自己的配置传上去：
 
+{% raw %}
 ```vue
 <script setup>
 import { ref, provide } from 'vue'
@@ -125,6 +126,7 @@ provide('tableContext', {
   </div>
 </template>
 ```
+{% endraw %}
 
 注意 `<slot />` 放在表格最前面——它的作用只是让子组件执行 `onBeforeMount`，把配置注册进来，不是真的要渲染插槽内容。
 
