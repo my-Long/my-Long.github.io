@@ -2,7 +2,6 @@
 title: "飘飘何所似，天地一沙鸥"
 description: " 进来时是一瓶染发剂，出去时是一只沙鸥——有些颜色，本来就染不了。"
 date: 2026-05-01 00:00:00 +0800
-pin: true
 categories: [Essays]
 tags: [career,reflection]
 ---
