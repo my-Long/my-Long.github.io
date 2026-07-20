@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit *)",
+      "Skill(new-post)",
+      "Skill(rewrite-post)"
+    ]
+  }
+}

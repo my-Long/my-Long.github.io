@@ -22,8 +22,6 @@ package-lock.json
 !.vscode/extensions.json
 !.vscode/tasks.json
 
-# Claude
-.claude
 
 # Misc
 _sass/vendors
