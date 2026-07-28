@@ -3,8 +3,7 @@ title: "寻找一种实用的方法来上传项目的 CDN 资源"
 description: "Manually uploading to a company server or borrowing an admin panel's avatar upload feature are both clunky ways to get an online image URL, so this post looks at adapting a resource upload approach that actually fits the project."
 date: 2026-07-17 00:00:00 +0800
 categories: [JS, Engineering]
-tags: [upload, cdn, workflow]
-published: true
+tags: [thinking,Tools,web,image,chrome-extension]
 ---
 
 这是在公司项目一开始就想的问题。
