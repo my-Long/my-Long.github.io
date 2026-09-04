@@ -3,7 +3,7 @@ title: "Injecting Environment Variables Into The Browser"
 description: "Comparing build-time and runtime strategies for getting server-side environment variables safely into client-side JavaScript."
 date: 2026-07-08 00:00:00 +0800
 categories: [JS, Engineering]
-tags: [Tools]
+tags: [Tools,web,chrome-extension,thinking]
 ---
 
 我好像爱上了浏览器插件，之前就开发了一个给图片加边框的 [PicBorder](https://my-long.github.io/posts/picborder-chrome-extension) 插件，后面还为了方便上传图片到静态资源服务器，也开发了插件。现在又着手开发插件了......
