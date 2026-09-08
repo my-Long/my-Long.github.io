@@ -4,6 +4,9 @@ description: "Sorts the AI buzzword chain from the last post into what the tool 
 date: 2026-08-22 00:00:00 +0800
 categories: [Essays]
 tags: [ai, agent, engineering, terminology]
+image:
+  path: /images/ai-stack-who-builds-what/banner.webp
+  alt: "AI 工具开发者搭建机制，使用者编排目标与流程"
 ---
 
 「AI workflow 到底是什么」——这句话最近总在耳边转，同事随口问、群里聊、连刷到的文章标题都在问，每次想张嘴答，又觉得哪里没讲透。脑子里立刻冒出[上一篇](/posts/ai-jargon-explained/)捋过的那堆词——LLM、RAG、MCP、agent、harness、workflow……可把这些词摆出来念一遍，还是没真正回答上这个问题，反而卡在了更实际的一步：这些东西里，哪些是做工具的人早就实现好、我不用管的，哪些其实是我自己得设计、得练的手艺？这条线不先分清楚，「workflow 到底是什么」这问题就没法算真答上。
@@ -15,6 +18,9 @@ tags: [ai, agent, engineering, terminology]
 LLM 本身不用管，那是模型厂商的事，我能做的只有选型——选哪家、多大参数、多少上下文、多少钱一个 token。这件事对做工具的人和用工具的人都一样：谁也没法把模型变聪明，只能挑一个够用的。
 
 token 和 context window 就是前面卡住我的那两个，捋清楚之后发现其实是分工，不是归属。它们是模型天生的物理限制，不是谁「设计」出来的，但做工具的人得把这个限制当成硬约束提前设计进产品里——历史记录超过多少要截断、要不要做摘要压缩、单次调用成本怎么预估；用工具的人则得在这个限制里把自己的任务组织清楚，知道哪些信息值得留、哪些该扔。同一个限制，一边管「系统怎么兜底」，一边管「我这次输入怎么取舍」，谁也不算单独拥有它。
+
+![面对有限上下文，开发者设计容量机制，使用者取舍信息](/images/ai-stack-who-builds-what/context-limits.webp){: .macos .shadow .rounded-10 w="1672" h="941" .light }
+![面对有限上下文，开发者设计容量机制，使用者取舍信息（暗色）](/images/ai-stack-who-builds-what/context-limits-dark.webp){: .macos .shadow .rounded-10 w="1672" h="941" .dark }
 
 ## 给 AI 接资料、接手、接工具，这是纯粹的工程活
 
@@ -46,6 +52,9 @@ agent 的循环——先计划、再动手、看结果、调整下一步——�
 workflow 同理：n8n、扣子这类平台是开发者搭的执行引擎——节点系统、触发器、调度逻辑；但「这条流程该怎么设计、遇到什么情况走哪个分支」，是懂业务的人根据实际场景编排出来的，跟平台本身没关系。
 
 workspace agent 的底层能力——权限隔离、数据同步、长期记忆的存取——是开发者要解决的工程问题；但「谁该看到什么信息、什么时候该转人工、哪些数据该留多久」，这是组织和流程设计问题，通常落在使用这个 agent 的团队或管理者身上，写代码的人给不出答案，因为这背后是权责划分，不是技术判断。
+
+![开发者搭好机制，使用者在机制上编排业务路径](/images/ai-stack-who-builds-what/mechanism-content.webp){: .macos .shadow .rounded-10 w="1672" h="941" .light }
+![开发者搭好机制，使用者在机制上编排业务路径（暗色）](/images/ai-stack-who-builds-what/mechanism-content-dark.webp){: .macos .shadow .rounded-10 w="1672" h="941" .dark }
 
 ## 使用者自己的手艺，谁也替不了
 
@@ -80,6 +89,9 @@ vibe coding 更彻底，它压根不是一个「要不要开发」的东西，�
 LLM、token/context window、RAG（它自己会去读代码库）、tool（跑命令、改文件、跑测试）、MCP、harness（沙箱、权限审批）、loop（改完自己跑测试、看报错、再改一版）——这些 Codex 已经内置好了，装上就能用，我不用也没法管底层怎么实现的。这一层，前面捋的规律直接成立：能不能做到，从头到尾不是我的事。
 
 真正落在我头上的，是剩下这几件：
+
+![编码工具提供执行能力，开发者仍需决定目标、边界与验收标准](/images/ai-stack-who-builds-what/codex-judgment.webp){: .macos .shadow .rounded-10 w="1672" h="941" .light }
+![编码工具提供执行能力，开发者仍需决定目标、边界与验收标准（暗色）](/images/ai-stack-who-builds-what/codex-judgment-dark.webp){: .macos .shadow .rounded-10 w="1672" h="941" .dark }
 
 - 项目里有没有一份说明文档告诉它目录结构、代码风格、测试怎么跑——没有的话它连「组件命名用什么规则」都得瞎猜，这是 context engineering 里内容那一半，它自己填不出来。
 - 任务怎么描述。「优化一下这个组件」和「给 Button 加个 loading 状态，参考 Modal 已有的写法，改完跑一下现有测试」，效果能差出天际——这就是 prompt，谁也替我练不了。
